@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class LoginController {
-  final String apiUrl = 'http://192.168.1.17/apis/Api_Login.php'; // Asegúrate de usar la URL correcta
+  final String apiUrl = 'http://localhost/apis/Api_Login.php'; // Asegúrate de usar la URL correcta
 
   Future<int> login({required String user, required String password}) async {
     try {

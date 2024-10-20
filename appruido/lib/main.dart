@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'views/login_page.dart';
-import 'views/home_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +13,40 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(), 
+      home: SplashScreen(), // Cambia a SplashScreen
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Simula una carga de 2 segundos antes de ir a la LoginPage
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Image.asset(
+          'assets/logo.png', // Asegúrate de que esta ruta sea correcta
+          width: 150, // Ajusta el tamaño según necesites
+          height: 150,
+        ),
+      ),
     );
   }
 }
