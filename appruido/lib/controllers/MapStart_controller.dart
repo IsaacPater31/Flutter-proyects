@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';  // Para obtener la ubicación en tiempo real
 
 class MapStartController extends StatefulWidget {
   @override
@@ -7,54 +9,78 @@ class MapStartController extends StatefulWidget {
 }
 
 class _MapStartControllerState extends State<MapStartController> {
-  GoogleMapController? _mapController;
-  LatLng _initialPosition = LatLng(0, 0); // Posición inicial del mapa
+  MapController _mapController = MapController();
+  LatLng _currentPosition = LatLng(45.521563, -122.677433);  // Ubicación inicial
 
   @override
   void initState() {
     super.initState();
+    _getCurrentLocation();  // Llamar a la función para obtener la ubicación en tiempo real
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Verificar si los servicios de ubicación están habilitados
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Si no están habilitados, mostrar un mensaje o pedir que los habiliten
+      return;
+    }
+
+    // Verificar los permisos de ubicación
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Si los permisos son negados, mostrar un mensaje o manejarlo
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Manejar el caso en que los permisos se niegan permanentemente
+      return;
+    }
+
+    // Obtener la ubicación en tiempo real
+    Geolocator.getPositionStream().listen((Position position) {
+      // ignore: unnecessary_null_comparison
+      if (position != null) {
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+          _mapController.move(_currentPosition, 15.0);  // Mover el mapa a la ubicación actual
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Mapa de Ruido'),
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        center: _currentPosition,  // Posición inicial (se actualizará en tiempo real)
+        zoom: 13.0,
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            onMapCreated: (controller) {
-              _mapController = controller;
-              _mapController!.animateCamera(CameraUpdate.newLatLng(_initialPosition));
-            },
-            initialCameraPosition: CameraPosition(
-              target: _initialPosition,
-              zoom: 14.0,
+      children: [
+        TileLayer(
+          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          subdomains: ['a', 'b', 'c'],
+          userAgentPackageName: 'com.example.appruido',
+        ),
+        MarkerLayer(
+          markers: [
+            Marker(
+              width: 80.0,
+              height: 80.0,
+              point: _currentPosition,
+              builder: (ctx) => Icon(Icons.location_pin, color: Colors.red, size: 40),
             ),
-            myLocationEnabled: true,
-          ),
-          // Cuadro en la parte inferior con el botón para obtener la ubicación
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.4 + 20, // Ajusta la posición del botón
-            left: 20,
-            right: 20,
-            child: ElevatedButton(
-              onPressed: () {
-                // Aquí conectar la lógica para obtener la ubicación actual
-                print('Conectar lógica para obtener ubicación actual');
-              },
-              child: Text('Obtener Ubicación Actual'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 15), // Ajuste de padding
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30), // Bordes redondeados
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

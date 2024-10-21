@@ -12,17 +12,15 @@ dependencies:
     sdk: flutter
   http: ^0.13.5
   cupertino_icons: ^1.0.8
+  flutter_map: ^4.0.0  # Paquete para integrar OpenStreetMap
+  latlong2: ^0.8.1  # Paquete para manejar coordenadas geográficas
+  geolocator: ^10.1.0  # Para obtener ubicación en tiempo real
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.13.1  # Agregar la dependencia de flutter_launcher_icons
-
-  dependencies:
-  flutter:
-    sdk: flutter
-  google_maps_flutter: ^2.1.1
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true

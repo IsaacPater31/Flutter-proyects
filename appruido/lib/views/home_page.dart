@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:appruido/controllers/MapStart_Controller.dart'; // Asegúrate de que la ruta esté bien
 
 class HomePage extends StatelessWidget {
   @override
@@ -9,23 +10,20 @@ class HomePage extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Aquí va el mapa que ocupará la mayor parte superior de la pantalla
+          // Mapa en la parte superior de la pantalla
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.6, // Ocupa 60% de la pantalla
-            child: Container(
-              color: Colors.blueGrey[200], // Representación del mapa
-              child: Center(child: Text('Aquí va el mapa')),
-            ),
+            height: MediaQuery.of(context).size.height * 0.6, // 60% de la pantalla
+            child: MapStartController(), // Llama al widget del mapa
           ),
           // Cuadro en la parte inferior con las funciones de medición
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.4, // Ocupa 40% de la pantalla
+            height: MediaQuery.of(context).size.height * 0.4, // 40% de la pantalla
             child: Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -43,7 +41,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround, // Cambiado para distribuir el espacio
+                mainAxisAlignment: MainAxisAlignment.spaceAround, // Distribuir espacio entre los widgets
                 children: [
                   // Botón circular para el micrófono
                   GestureDetector(
@@ -67,7 +65,7 @@ class HomePage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       // Lógica para ver reportes
-                      print('Ver reportes'); // Cambia esto para redirigir a la página de reportes
+                      print('Ver reportes');
                     },
                     child: Text('Ver Reportes'),
                   ),
@@ -75,7 +73,7 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          // Botón discreto para notificaciones en la esquina superior derecha
+          // Botón para notificaciones en la esquina superior derecha
           Positioned(
             top: 20,
             right: 20,
