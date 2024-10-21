@@ -43,7 +43,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround, // Cambiado para distribuir el espacio
                 children: [
                   // Botón circular para el micrófono
                   GestureDetector(
@@ -61,8 +61,16 @@ class HomePage extends StatelessWidget {
                       child: Icon(Icons.mic, color: Colors.white, size: 36),
                     ),
                   ),
-                  SizedBox(height: 10),
                   Text('Presiona para medir el nivel de ruido'),
+                  SizedBox(height: 20),
+                  // Botón para ver reportes
+                  ElevatedButton(
+                    onPressed: () {
+                      // Lógica para ver reportes
+                      print('Ver reportes'); // Cambia esto para redirigir a la página de reportes
+                    },
+                    child: Text('Ver Reportes'),
+                  ),
                 ],
               ),
             ),

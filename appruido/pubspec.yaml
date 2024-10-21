@@ -19,6 +19,11 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   flutter_launcher_icons: ^0.13.1  # Agregar la dependencia de flutter_launcher_icons
 
+  dependencies:
+  flutter:
+    sdk: flutter
+  google_maps_flutter: ^2.1.1
+
 flutter:
   uses-material-design: true
 
