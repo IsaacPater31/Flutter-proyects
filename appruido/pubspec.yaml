@@ -15,6 +15,9 @@ dependencies:
   flutter_map: ^4.0.0  # Paquete para integrar OpenStreetMap
   latlong2: ^0.8.1  # Paquete para manejar coordenadas geográficas
   geolocator: ^10.1.0  # Para obtener ubicación en tiempo real
+  microphone: 0.1.0
+  noise_meter: ^5.0.2
+
 
 dev_dependencies:
   flutter_test:

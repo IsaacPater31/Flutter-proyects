@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SignUpController {
-  final String apiUrl = 'http://192.168.1.12/apis/Api_SignUp.php'; // Cambia esto por la URL de tu API
+  final String apiUrl = 'http://10.10.6.62/apis/Api_SignUp.php'; // Cambia esto por la URL de tu API
 
   Future<int> signUp({
     required String id,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:appruido/controllers/MapStart_Controller.dart'; // Asegúrate de que la ruta esté bien
+import 'package:appruido/views/Sound_view.dart'; // Importa la vista de medición de sonido
 
 class HomePage extends StatelessWidget {
   @override
@@ -43,23 +44,20 @@ class HomePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround, // Distribuir espacio entre los widgets
                 children: [
-                  // Botón circular para el micrófono
-                  GestureDetector(
-                    onTap: () {
-                      // Lógica para iniciar la medición de ruido
-                      print('Iniciar medición de ruido');
+                  // Botón para realizar medición
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navegar a la vista de medición de ruido
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SoundView()),
+                      );
                     },
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.mic, color: Colors.white, size: 36),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 50), backgroundColor: Colors.green, // Color del botón
                     ),
+                    child: Text('Realizar Medición', style: TextStyle(fontSize: 16)),
                   ),
-                  Text('Presiona para medir el nivel de ruido'),
                   SizedBox(height: 20),
                   // Botón para ver reportes
                   ElevatedButton(
@@ -67,7 +65,22 @@ class HomePage extends StatelessWidget {
                       // Lógica para ver reportes
                       print('Ver reportes');
                     },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 50), // Tamaño personalizado
+                    ),
                     child: Text('Ver Reportes'),
+                  ),
+                  SizedBox(height: 20),
+                  // Botón para generar estadísticas
+                  ElevatedButton(
+                    onPressed: () {
+                      // Lógica para generar estadísticas
+                      print('Generar Estadísticas');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 50), // Tamaño personalizado
+                    ),
+                    child: Text('Generar Estadísticas'),
                   ),
                 ],
               ),
