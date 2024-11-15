@@ -13,21 +13,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 // Configurar el tipo de contenido
 header('Content-Type: application/json');
 
-// Conexi髇 a la base de datos
+// Conexi贸n a la base de datos
 $servername = "localhost";
 $username = "root"; // Cambia por tu usuario de la base de datos
-$password = ""; // Cambia por tu contrase馻 de la base de datos
+$password = ""; // Cambia por tu contrase帽a de la base de datos
 $dbname = "monitoreo_ruido";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar conexi髇
+// Verificar conexi贸n
 if ($conn->connect_error) {
-    die(json_encode(["status" => "error", "message" => "Conexi髇 fallida: " . $conn->connect_error]));
+    die(json_encode(["status" => "error", "message" => "Conexi贸n fallida: " . $conn->connect_error]));
 }
 
 // Consulta para obtener los registros de ruido bajo
-$sql = "SELECT Id_Medida, Nivel_Ruido, Fecha_Hora, Direccion_Reporte, Latitud, Longitud, Usuario_ID FROM ruido WHERE Nivel_Ruido < 31";
+$sql = "SELECT Id_Medida, Nivel_Ruido, Fecha_Hora, Latitud, Longitud, Usuario_ID FROM ruido WHERE Nivel_Ruido < 31";
 $result = $conn->query($sql);
 
 // Comprobar errores en la consulta
@@ -39,14 +39,13 @@ $ruido_data = array();
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        // Convertir valores a float para asegurarte de que se devuelvan como n鷐eros
+        // Convertir valores a float para asegurarte de que se devuelvan como n煤meros
         $ruido_data[] = [
             'Id_Medida' => $row['Id_Medida'],
-            'Nivel_Ruido' => (float)$row['Nivel_Ruido'], // Asegurarse de que sea float
+            'Nivel_Ruido' => (float)$row['Nivel_Ruido'],
             'Fecha_Hora' => $row['Fecha_Hora'],
-            'Direccion_Reporte' => $row['Direccion_Reporte'],
-            'Latitud' => (float)$row['Latitud'], // Asegurarse de que sea float
-            'Longitud' => (float)$row['Longitud'], // Asegurarse de que sea float
+            'Latitud' => (float)$row['Latitud'],
+            'Longitud' => (float)$row['Longitud'],
             'Usuario_ID' => $row['Usuario_ID']
         ];
     }
@@ -55,6 +54,6 @@ if ($result->num_rows > 0) {
     echo json_encode(["status" => 0, "message" => "No se encontraron registros de ruido"]);
 }
 
-// Cerrar conexi髇
+// Cerrar conexi贸n
 $conn->close();
 ?>

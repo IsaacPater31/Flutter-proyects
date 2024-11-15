@@ -28,31 +28,24 @@ class _MapStartControllerState extends State<MapStartController> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Verificar si los servicios de ubicación están habilitados
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Si no están habilitados, mostrar un mensaje o pedir que los habiliten
       return;
     }
 
-    // Verificar los permisos de ubicación
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Si los permisos son negados, mostrar un mensaje o manejarlo
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Manejar el caso en que los permisos se niegan permanentemente
       return;
     }
 
-    // Obtener la ubicación en tiempo real
     Geolocator.getPositionStream().listen((Position position) {
-      // Verificar que la posición no sea nula
       if (position != null) {
         setState(() {
           _currentPosition = LatLng(position.latitude, position.longitude);
@@ -69,9 +62,8 @@ class _MapStartControllerState extends State<MapStartController> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        // Verificar que la respuesta sea un objeto y contenga 'status'
         if (data is Map<String, dynamic> && data['status'] == 1) {
-          _updateMarkers(data['data']); // Actualizar marcadores si hay registros
+          _updateMarkers(data['data']);
         } else {
           print('No se encontraron registros: ${data['message']}');
         }
@@ -86,16 +78,9 @@ class _MapStartControllerState extends State<MapStartController> {
   void _updateMarkers(List<dynamic> records) {
     List<Marker> markers = [];
     for (var record in records) {
-      // Asegúrate de que estos valores se manejen como double
-      double nivelRuido = (record['Nivel_Ruido'] is String)
-          ? double.tryParse(record['Nivel_Ruido']) ?? 0.0
-          : record['Nivel_Ruido'];
-      LatLng position = LatLng(
-        (record['Latitud'] is String) ? double.tryParse(record['Latitud']) ?? 0.0 : record['Latitud'],
-        (record['Longitud'] is String) ? double.tryParse(record['Longitud']) ?? 0.0 : record['Longitud'],
-      );
+      double nivelRuido = record['Nivel_Ruido'];
+      LatLng position = LatLng(record['Latitud'], record['Longitud']);
 
-      // Determinar el color del marcador según el nivel de ruido
       Color markerColor = nivelRuido < 31 ? Colors.green : Colors.red;
 
       markers.add(Marker(
@@ -106,7 +91,7 @@ class _MapStartControllerState extends State<MapStartController> {
       ));
     }
     setState(() {
-      _markers = markers; // Actualizar la lista de marcadores
+      _markers = markers;
     });
   }
 
@@ -115,7 +100,7 @@ class _MapStartControllerState extends State<MapStartController> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        center: _currentPosition,  // Posición inicial (se actualizará en tiempo real)
+        center: _currentPosition,
         zoom: 13.0,
       ),
       children: [
@@ -125,7 +110,7 @@ class _MapStartControllerState extends State<MapStartController> {
           userAgentPackageName: 'com.example.appruido',
         ),
         MarkerLayer(
-          markers: _markers, // Usar los marcadores actualizados
+          markers: _markers,
         ),
       ],
     );
