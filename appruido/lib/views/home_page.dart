@@ -41,46 +41,62 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround, // Distribuir espacio entre los widgets
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Botón para realizar medición
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navegar a la vista de medición de ruido
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SoundView()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 50), backgroundColor: Colors.green, // Color del botón
-                    ),
-                    child: Text('Realizar Medición', style: TextStyle(fontSize: 16)),
+                  // Columna de botones en la izquierda
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SoundView()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(140, 50),
+                          backgroundColor: Colors.green,
+                        ),
+                        child: Text('Realizar Medición'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          print('Ver reportes');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(140, 50),
+                        ),
+                        child: Text('Ver Reportes'),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  // Botón para ver reportes
-                  ElevatedButton(
-                    onPressed: () {
-                      // Lógica para ver reportes
-                      print('Ver reportes');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 50), // Tamaño personalizado
-                    ),
-                    child: Text('Ver Reportes'),
-                  ),
-                  SizedBox(height: 20),
-                  // Botón para generar estadísticas
-                  ElevatedButton(
-                    onPressed: () {
-                      // Lógica para generar estadísticas
-                      print('Generar Estadísticas');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(200, 50), // Tamaño personalizado
-                    ),
-                    child: Text('Generar Estadísticas'),
+                  // Columna de botones en la derecha
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          print('Generar Estadísticas');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(140, 50),
+                        ),
+                        child: Text('Generar Estadísticas'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Lógica para llamar a las autoridades
+                          print('Llamar Autoridades');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(140, 50),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: Text('Llamar Autoridades'),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -93,7 +109,6 @@ class HomePage extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.notifications),
               onPressed: () {
-                // Lógica para las notificaciones
                 print('Notificaciones');
               },
             ),
