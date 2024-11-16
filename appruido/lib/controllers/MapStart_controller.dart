@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart';  // Para obtener la ubicación en tiempo real
-import 'package:http/http.dart' as http; // Para hacer solicitudes HTTP
-import 'dart:convert'; // Para manejar JSON
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MapStartController extends StatefulWidget {
   @override
@@ -11,63 +11,63 @@ class MapStartController extends StatefulWidget {
 }
 
 class _MapStartControllerState extends State<MapStartController> {
-  MapController _mapController = MapController();
-  LatLng _currentPosition = LatLng(45.521563, -122.677433);  // Ubicación inicial
-  List<Marker> _markers = []; // Lista para almacenar los markers
-
-  final String apiUrl = 'http://192.168.1.16/apis/Api_Registrosruido.php'; // Asegúrate de usar la URL correcta
+  final MapController _mapController = MapController();
+  LatLng _currentPosition = LatLng(0.0, 0.0);
+  List<Marker> _markers = [];
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Registrosruido.php';
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();  // Llamar a la función para obtener la ubicación en tiempo real
-    _fetchNoiseRecords(); // Llamar a la función para obtener los registros de ruido
+    _getCurrentLocation();
+    _fetchNoiseRecords();
   }
 
-  // Método para obtener la ubicación actual usando Geolocator
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FocusScope.of(context).unfocus(); // Moverlo a didChangeDependencies
+  }
+
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Verificar si el servicio de ubicación está habilitado
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Si los servicios de ubicación están deshabilitados, terminar
-      return;
-    }
-
-    // Verificar y solicitar permisos de ubicación
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Si el permiso es denegado
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print("Servicios de ubicación desactivados.");
         return;
       }
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Si el permiso es denegado permanentemente
-      return;
-    }
-
-    // Obtener la posición actual en tiempo real
-    Geolocator.getPositionStream().listen((Position position) {
-      if (position != null) {
-        setState(() {
-          // Actualizar la posición actual
-          _currentPosition = LatLng(position.latitude, position.longitude);
-          // Mover el mapa a la ubicación actual
-          _mapController.move(_currentPosition, 15.0);
-        });
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("Permiso de ubicación denegado.");
+          return;
+        }
       }
-    });
+
+      if (permission == LocationPermission.deniedForever) {
+        print("Permiso de ubicación denegado permanentemente.");
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+      print("Coordenadas actuales: Latitud: ${position.latitude}, Longitud: ${position.longitude}");
+
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
+
+      _mapController.move(_currentPosition, 15.0);
+    } catch (e) {
+      print("Error obteniendo la ubicación: $e");
+    }
   }
 
-  // Función para obtener los registros de ruido desde el servidor
   Future<void> _fetchNoiseRecords() async {
     try {
       final response = await http.get(Uri.parse(apiUrl));
+      print("Respuesta de la API: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -75,28 +75,31 @@ class _MapStartControllerState extends State<MapStartController> {
         if (data is Map<String, dynamic> && data['status'] == 1) {
           _updateMarkers(data['data']);
         } else {
-          print('No se encontraron registros: ${data['message']}');
+          print("Error en datos de la API: ${data['message']}");
         }
       } else {
-        print('Error en la respuesta del servidor: ${response.statusCode}');
+        print("Error en la respuesta HTTP: Código ${response.statusCode}");
       }
     } catch (e) {
-      print('Error: $e'); // Manejo de excepciones
+      print("Error en solicitud HTTP: $e");
     }
   }
 
-  // Función para actualizar los marcadores en el mapa
   void _updateMarkers(List<dynamic> records) {
     List<Marker> markers = [];
     for (var record in records) {
-      double nivelRuido = record['Nivel_Ruido'];
-      LatLng position = LatLng(record['Latitud'], record['Longitud']);
+      double nivelRuido = (record['Nivel_Ruido'] as num).toDouble();
+      LatLng position = LatLng(
+        (record['Latitud'] as num).toDouble(),
+        (record['Longitud'] as num).toDouble(),
+      );
 
-      // Determinar el color del marcador según el nivel de ruido
+      print("Registro: Nivel de ruido: $nivelRuido, Coordenadas: $position");
+
       Color markerColor;
       if (nivelRuido < 65) {
         markerColor = Colors.green;
-      } else if (nivelRuido >= 65 && nivelRuido <= 85) {
+      } else if (nivelRuido < 85) {
         markerColor = Colors.yellow;
       } else {
         markerColor = Colors.red;
@@ -109,6 +112,7 @@ class _MapStartControllerState extends State<MapStartController> {
         builder: (ctx) => Icon(Icons.location_pin, color: markerColor, size: 40),
       ));
     }
+
     setState(() {
       _markers = markers;
     });
@@ -117,14 +121,19 @@ class _MapStartControllerState extends State<MapStartController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Mapa de Ruido"),
-      ),
+      appBar: AppBar(title: Text("Mapa de Ruido")),
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          center: _currentPosition,  // Usar la ubicación dinámica
+          center: _currentPosition,
           zoom: 13.0,
+          onMapReady: () {
+            print("El mapa está listo.");
+            // Asegúrate de que el mapa se mueva a la posición correcta
+            if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
+              _mapController.move(_currentPosition, 15.0);
+            }
+          },
         ),
         children: [
           TileLayer(
