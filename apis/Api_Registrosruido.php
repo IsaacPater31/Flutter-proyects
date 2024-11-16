@@ -26,8 +26,8 @@ if ($conn->connect_error) {
     die(json_encode(["status" => "error", "message" => "Conexión fallida: " . $conn->connect_error]));
 }
 
-// Consulta para obtener los registros de ruido bajo
-$sql = "SELECT Id_Medida, Nivel_Ruido, Fecha_Hora, Latitud, Longitud, Usuario_ID FROM ruido WHERE Nivel_Ruido < 31";
+// Consulta para obtener todos los registros de ruido (sin filtro de Nivel_Ruido)
+$sql = "SELECT Id_Medida, Nivel_Ruido, Fecha_Hora, Latitud, Longitud, Usuario_ID FROM ruido";
 $result = $conn->query($sql);
 
 // Comprobar errores en la consulta

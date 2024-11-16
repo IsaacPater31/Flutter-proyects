@@ -24,37 +24,47 @@ class _MapStartControllerState extends State<MapStartController> {
     _fetchNoiseRecords(); // Llamar a la función para obtener los registros de ruido
   }
 
+  // Método para obtener la ubicación actual usando Geolocator
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
+    // Verificar si el servicio de ubicación está habilitado
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      // Si los servicios de ubicación están deshabilitados, terminar
       return;
     }
 
+    // Verificar y solicitar permisos de ubicación
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
+        // Si el permiso es denegado
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
+      // Si el permiso es denegado permanentemente
       return;
     }
 
+    // Obtener la posición actual en tiempo real
     Geolocator.getPositionStream().listen((Position position) {
       if (position != null) {
         setState(() {
+          // Actualizar la posición actual
           _currentPosition = LatLng(position.latitude, position.longitude);
-          _mapController.move(_currentPosition, 15.0);  // Mover el mapa a la ubicación actual
+          // Mover el mapa a la ubicación actual
+          _mapController.move(_currentPosition, 15.0);
         });
       }
     });
   }
 
+  // Función para obtener los registros de ruido desde el servidor
   Future<void> _fetchNoiseRecords() async {
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -75,13 +85,22 @@ class _MapStartControllerState extends State<MapStartController> {
     }
   }
 
+  // Función para actualizar los marcadores en el mapa
   void _updateMarkers(List<dynamic> records) {
     List<Marker> markers = [];
     for (var record in records) {
       double nivelRuido = record['Nivel_Ruido'];
       LatLng position = LatLng(record['Latitud'], record['Longitud']);
 
-      Color markerColor = nivelRuido < 31 ? Colors.green : Colors.red;
+      // Determinar el color del marcador según el nivel de ruido
+      Color markerColor;
+      if (nivelRuido < 65) {
+        markerColor = Colors.green;
+      } else if (nivelRuido >= 65 && nivelRuido <= 85) {
+        markerColor = Colors.yellow;
+      } else {
+        markerColor = Colors.red;
+      }
 
       markers.add(Marker(
         width: 80.0,
@@ -97,22 +116,27 @@ class _MapStartControllerState extends State<MapStartController> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(
-        center: _currentPosition,
-        zoom: 13.0,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Mapa de Ruido"),
       ),
-      children: [
-        TileLayer(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          userAgentPackageName: 'com.example.appruido',
+      body: FlutterMap(
+        mapController: _mapController,
+        options: MapOptions(
+          center: _currentPosition,  // Usar la ubicación dinámica
+          zoom: 13.0,
         ),
-        MarkerLayer(
-          markers: _markers,
-        ),
-      ],
+        children: [
+          TileLayer(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: ['a', 'b', 'c'],
+            userAgentPackageName: 'com.example.appruido',
+          ),
+          MarkerLayer(
+            markers: _markers,
+          ),
+        ],
+      ),
     );
   }
 }

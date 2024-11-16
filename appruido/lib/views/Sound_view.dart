@@ -24,6 +24,12 @@ class _SoundViewState extends State<SoundView> {
     _soundController.stopRecording();
   }
 
+  // Guardar el reporte de ruido (sin lógica, solo el botón)
+  void _saveReport() {
+    // Aquí iría la lógica para guardar el reporte
+    print("Guardar reporte: $_currentDecibel dB");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,6 +56,12 @@ class _SoundViewState extends State<SoundView> {
             ElevatedButton(
               onPressed: _stopMeasurement,
               child: Text('Detener Medición'),
+            ),
+            SizedBox(height: 20),
+            // Botón para guardar el reporte
+            ElevatedButton(
+              onPressed: _saveReport,
+              child: Text('Guardar Reporte'),
             ),
           ],
         ),
