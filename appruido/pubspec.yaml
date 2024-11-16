@@ -17,6 +17,7 @@ dependencies:
   geolocator: ^10.1.0  # Para obtener ubicación en tiempo real
   microphone: 0.1.0
   noise_meter: ^5.0.2
+  url_launcher: ^6.3.1
 
 
 dev_dependencies:

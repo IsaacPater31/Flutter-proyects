@@ -1,6 +1,7 @@
+import 'package:appruido/controllers/Cops_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:appruido/controllers/MapStart_Controller.dart';
-import 'package:appruido/views/Sound_view.dart';
+import 'package:appruido/controllers/MapStart_Controller.dart'; // Ruta del mapa
+import 'package:appruido/views/Sound_view.dart'; // Vista de medición de sonido
 
 class HomePage extends StatelessWidget {
   @override
@@ -17,7 +18,7 @@ class HomePage extends StatelessWidget {
             left: 0,
             right: 0,
             height: MediaQuery.of(context).size.height * 0.6, // 60% de la pantalla
-            child: MapStartController(), // Llama al widget del mapa
+            child: MapStartController(),
           ),
           // Cuadro en la parte inferior con las funciones de medición
           Positioned(
@@ -91,7 +92,8 @@ class HomePage extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            print('Llamar Autoridades');
+                            // Llamada a la línea de emergencia
+                            CopsController.callEmergencyLine();
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 50),
