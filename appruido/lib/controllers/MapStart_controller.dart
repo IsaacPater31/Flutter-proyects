@@ -15,7 +15,7 @@ class _MapStartControllerState extends State<MapStartController> {
   LatLng _currentPosition = LatLng(45.521563, -122.677433);  // Ubicación inicial
   List<Marker> _markers = []; // Lista para almacenar los markers
 
-  final String apiUrl = 'http://172.16.25.253/apis/Api_Registrosruido.php'; // Asegúrate de usar la URL correcta
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Registrosruido.php'; // Asegúrate de usar la URL correcta
 
   @override
   void initState() {

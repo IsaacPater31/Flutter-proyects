@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:appruido/controllers/MapStart_Controller.dart'; // Asegúrate de que la ruta esté bien
-import 'package:appruido/views/Sound_view.dart'; // Importa la vista de medición de sonido
+import 'package:appruido/controllers/MapStart_Controller.dart';
+import 'package:appruido/views/Sound_view.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -45,58 +45,62 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Columna de botones en la izquierda
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SoundView()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(140, 50),
-                          backgroundColor: Colors.green,
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SoundView()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(120, 50),
+                            backgroundColor: Colors.green,
+                          ),
+                          child: Text('Realizar Medición'),
                         ),
-                        child: Text('Realizar Medición'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          print('Ver reportes');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(140, 50),
+                        ElevatedButton(
+                          onPressed: () {
+                            print('Ver reportes');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(120, 50),
+                          ),
+                          child: Text('Ver Reportes'),
                         ),
-                        child: Text('Ver Reportes'),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  SizedBox(width: 16), // Espacio entre las columnas
                   // Columna de botones en la derecha
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          print('Generar Estadísticas');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(140, 50),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            print('Generar Estadísticas');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(120, 50),
+                          ),
+                          child: Text('Generar Estadísticas'),
                         ),
-                        child: Text('Generar Estadísticas'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Lógica para llamar a las autoridades
-                          print('Llamar Autoridades');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(140, 50),
-                          backgroundColor: Colors.red,
+                        ElevatedButton(
+                          onPressed: () {
+                            print('Llamar Autoridades');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(120, 50),
+                            backgroundColor: Colors.red,
+                          ),
+                          child: Text('Llamar Autoridades'),
                         ),
-                        child: Text('Llamar Autoridades'),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
