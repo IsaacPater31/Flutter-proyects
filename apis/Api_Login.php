@@ -42,7 +42,7 @@ if (isset($data['User'], $data['Password'])) {
             echo json_encode([
                 "status" => 1,
                 "message" => "Inicio de sesión exitoso",
-                "ID" => $id // Retorna el ID del usuario
+                "ID" => $id
             ]);
         } else {
             echo json_encode(["status" => 0, "message" => "Credenciales inválidas"]);

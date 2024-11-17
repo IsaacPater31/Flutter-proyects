@@ -1,6 +1,6 @@
 import 'package:appruido/controllers/login_controller.dart';
-import 'package:appruido/views/home_page.dart';
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                labelText: 'User',
+                labelText: 'Usuario',
               ),
             ),
             TextField(
@@ -90,6 +90,8 @@ class _LoginPageState extends State<LoginPage> {
                           errorMessage = 'Credenciales inválidas.';
                         } else if (result == -1) {
                           errorMessage = 'Error en la conexión. Intente nuevamente.';
+                        } else if (result == 'missing_fields') {
+                          errorMessage = 'Faltan campos en la solicitud.';
                         } else {
                           errorMessage = 'Error al iniciar sesión. Intente nuevamente más tarde.';
                         }

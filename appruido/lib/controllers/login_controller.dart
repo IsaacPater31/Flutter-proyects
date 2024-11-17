@@ -35,15 +35,15 @@ class LoginController {
           return responseData['status'];
         } else {
           print('Inicio de sesión fallido: ${responseData['message']}');
+          return responseData['status']; // Retorna el estado de error
         }
       } else {
         print('Error en la respuesta del servidor: ${response.statusCode}');
+        return -1;
       }
     } catch (e) {
       print('Excepción durante el inicio de sesión: $e');
+      return -1; // Retorna -1 en caso de error
     }
-
-    print('Error: Inicio de sesión fallido.');
-    return -1; // Retorna -1 en caso de error
   }
 }
