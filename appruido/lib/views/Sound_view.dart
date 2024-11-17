@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:appruido/controllers/Sound_controller.dart'; // Importa tu controlador de sonido
+import 'package:appruido/controllers/Sound_controller.dart';
 
 class SoundView extends StatefulWidget {
   @override
@@ -7,10 +7,9 @@ class SoundView extends StatefulWidget {
 }
 
 class _SoundViewState extends State<SoundView> {
-  SoundController _soundController = SoundController();
+  final SoundController _soundController = SoundController();
   double _currentDecibel = 0.0;
 
-  // Iniciar medición de ruido
   void _startMeasurement() {
     _soundController.startRecording((noiseReading) {
       setState(() {
@@ -19,50 +18,26 @@ class _SoundViewState extends State<SoundView> {
     });
   }
 
-  // Detener medición de ruido
   void _stopMeasurement() {
     _soundController.stopRecording();
   }
 
-  // Guardar el reporte de ruido (sin lógica, solo el botón)
   void _saveReport() {
-    // Aquí iría la lógica para guardar el reporte
-    print("Guardar reporte: $_currentDecibel dB");
+    _soundController.saveNoiseLevel(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Medición de Ruido"),
-      ),
+      appBar: AppBar(title: Text("Medición de Ruido")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Mostrar el nivel de ruido actual
-            Text(
-              'Nivel de Ruido Promedio: ${_currentDecibel.toStringAsFixed(2)} dB',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 20),
-            // Botón para iniciar la medición de ruido
-            ElevatedButton(
-              onPressed: _startMeasurement,
-              child: Text('Iniciar Medición'),
-            ),
-            SizedBox(height: 20),
-            // Botón para detener la medición de ruido
-            ElevatedButton(
-              onPressed: _stopMeasurement,
-              child: Text('Detener Medición'),
-            ),
-            SizedBox(height: 20),
-            // Botón para guardar el reporte
-            ElevatedButton(
-              onPressed: _saveReport,
-              child: Text('Guardar Reporte'),
-            ),
+            Text('Nivel de Ruido Promedio: ${_currentDecibel.toStringAsFixed(2)} dB'),
+            ElevatedButton(onPressed: _startMeasurement, child: Text("Iniciar Medición")),
+            ElevatedButton(onPressed: _stopMeasurement, child: Text("Detener Medición")),
+            ElevatedButton(onPressed: _saveReport, child: Text("Guardar Reporte")),
           ],
         ),
       ),

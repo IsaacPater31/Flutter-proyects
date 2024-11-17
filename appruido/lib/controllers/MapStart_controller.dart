@@ -23,12 +23,6 @@ class _MapStartControllerState extends State<MapStartController> {
     _fetchNoiseRecords();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    FocusScope.of(context).unfocus(); // Moverlo a didChangeDependencies
-  }
-
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -75,7 +69,7 @@ class _MapStartControllerState extends State<MapStartController> {
         if (data is Map<String, dynamic> && data['status'] == 1) {
           _updateMarkers(data['data']);
         } else {
-          print("Error en datos de la API: ${data['message']}");
+          print("Error en datos de la API: ${data['message']}"); // Manejo de errores
         }
       } else {
         print("Error en la respuesta HTTP: Código ${response.statusCode}");
@@ -94,7 +88,9 @@ class _MapStartControllerState extends State<MapStartController> {
         (record['Longitud'] as num).toDouble(),
       );
 
-      print("Registro: Nivel de ruido: $nivelRuido, Coordenadas: $position");
+      String fecha = record['Fecha'];
+      String hora = record['Hora'];
+      print("Registro: Nivel de ruido: $nivelRuido, Fecha: $fecha, Hora: $hora, Coordenadas: $position");
 
       Color markerColor;
       if (nivelRuido < 65) {
@@ -128,8 +124,6 @@ class _MapStartControllerState extends State<MapStartController> {
           center: _currentPosition,
           zoom: 13.0,
           onMapReady: () {
-            print("El mapa está listo.");
-            // Asegúrate de que el mapa se mueva a la posición correcta
             if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
               _mapController.move(_currentPosition, 15.0);
             }
