@@ -8,7 +8,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Medición de Ruido'),
+        title: Text('Mapa de Ruido'), // Solo un título aquí
       ),
       body: Stack(
         children: [
@@ -18,9 +18,9 @@ class HomePage extends StatelessWidget {
             left: 0,
             right: 0,
             height: MediaQuery.of(context).size.height * 0.6, // 60% de la pantalla
-            child: MapStartController(),
+            child: MapStartController(), // Mapa
           ),
-          // Cuadro en la parte inferior con las funciones de medición
+          // Cuadro en la parte inferior con las funciones
           Positioned(
             bottom: 0,
             left: 0,
@@ -45,13 +45,14 @@ class HomePage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Columna de botones en la izquierda
+                  // Columna de botones a la izquierda
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         ElevatedButton(
                           onPressed: () {
+                            print('Botón "Realizar Medición" presionado');
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SoundView()),
@@ -65,7 +66,8 @@ class HomePage extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            print('Ver reportes');
+                            print('Botón "Ver Reportes" presionado');
+                            // Aquí iría la navegación a la vista de reportes cuando se cree
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 50),
@@ -76,14 +78,14 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16), // Espacio entre las columnas
-                  // Columna de botones en la derecha
+                  // Columna de botones a la derecha
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            print('Generar Estadísticas');
+                            print('Botón "Generar Estadísticas" presionado');
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 50),
@@ -92,6 +94,7 @@ class HomePage extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () {
+                            print('Botón "Llamar Autoridades" presionado');
                             // Llamada a la línea de emergencia
                             CopsController.callEmergencyLine();
                           },
@@ -115,7 +118,7 @@ class HomePage extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.notifications),
               onPressed: () {
-                print('Notificaciones');
+                print('Botón de Notificaciones presionado');
               },
             ),
           ),
@@ -124,3 +127,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

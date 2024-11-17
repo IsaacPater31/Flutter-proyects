@@ -116,30 +116,27 @@ class _MapStartControllerState extends State<MapStartController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Mapa de Ruido")),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          center: _currentPosition,
-          zoom: 13.0,
-          onMapReady: () {
-            if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
-              _mapController.move(_currentPosition, 15.0);
-            }
-          },
-        ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
-            userAgentPackageName: 'com.example.appruido',
-          ),
-          MarkerLayer(
-            markers: _markers,
-          ),
-        ],
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        center: _currentPosition,
+        zoom: 13.0,
+        onMapReady: () {
+          if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
+            _mapController.move(_currentPosition, 15.0);
+          }
+        },
       ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          subdomains: ['a', 'b', 'c'],
+          userAgentPackageName: 'com.example.appruido',
+        ),
+        MarkerLayer(
+          markers: _markers,
+        ),
+      ],
     );
   }
 }
