@@ -1,7 +1,9 @@
 import 'package:appruido/controllers/Cops_controller.dart';
+import 'package:appruido/views/Reports_view.dart';
 import 'package:flutter/material.dart';
 import 'package:appruido/controllers/MapStart_Controller.dart'; // Ruta del mapa
 import 'package:appruido/views/Sound_view.dart'; // Vista de medición de sonido
+
 
 class HomePage extends StatelessWidget {
   @override
@@ -67,7 +69,11 @@ class HomePage extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             print('Botón "Ver Reportes" presionado');
-                            // Aquí iría la navegación a la vista de reportes cuando se cree
+                            // Navegar a la vista de reportes
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ReportsView()),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 50),
@@ -127,4 +133,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
