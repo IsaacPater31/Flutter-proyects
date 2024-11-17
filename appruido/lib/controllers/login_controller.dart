@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class LoginController {
-  final String apiUrl = 'http://192.168.1.16/apis/Api_Login.php'; // Asegúrate de usar la URL correcta
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Login.php';
+
+  // Variable global para almacenar el ID del usuario logueado
+  static int? userId;
 
   Future<int> login({required String user, required String password}) async {
+    print('Iniciando proceso de inicio de sesión...');
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -15,20 +19,31 @@ class LoginController {
         }),
       );
 
+      print('Respuesta recibida con código: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        print('Datos de respuesta: $responseData');
 
-        // Verificar que la respuesta sea un objeto y contenga 'status'
-        if (responseData is Map<String, dynamic> && responseData.containsKey('status')) {
-          return responseData['status']; // Devuelve el estado directamente
+        if (responseData['status'] == 1) {
+          // Convertir directamente el ID a int
+          userId = responseData['ID'] is int
+              ? responseData['ID'] // Si ya es un int, lo usamos directamente
+              : int.parse(responseData['ID'].toString()); // Si es un string, lo convertimos a int
+
+          print('Inicio de sesión exitoso. ID del usuario: $userId');
+          return responseData['status'];
+        } else {
+          print('Inicio de sesión fallido: ${responseData['message']}');
         }
       } else {
         print('Error en la respuesta del servidor: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e'); // Manejo de excepciones
+      print('Excepción durante el inicio de sesión: $e');
     }
 
-    return -1; // Error en el inicio de sesión
+    print('Error: Inicio de sesión fallido.');
+    return -1; // Retorna -1 en caso de error
   }
 }
