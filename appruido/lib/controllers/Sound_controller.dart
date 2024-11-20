@@ -119,7 +119,7 @@ class SoundController {
         try {
           final responseData = jsonDecode(response.body);
           if (responseData['status'] == 1) {
-            _showDialog(context, "Éxito", "Ruido guardado exitosamente.");
+            _showDialog(context, "Éxito", "El nivel promedio de ruido guardado exitosamente.");
           } else {
             print("Error en la API: ${responseData['message']}");
             _showDialog(context, "Error", responseData['message']);

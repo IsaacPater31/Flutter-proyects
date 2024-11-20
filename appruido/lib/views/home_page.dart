@@ -78,7 +78,7 @@ class HomePage extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             minimumSize: Size(120, 50),
                           ),
-                          child: Text('Ver Reportes'),
+                          child: Text('Ver mis Reportes'),
                         ),
                       ],
                     ),
