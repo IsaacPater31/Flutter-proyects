@@ -4,8 +4,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';  // Importar para usar Timer
 
 class MapStartController extends StatefulWidget {
+  final Function()? onReloadMarkers;
+
+  MapStartController({this.onReloadMarkers});
+
   @override
   _MapStartControllerState createState() => _MapStartControllerState();
 }
@@ -14,13 +19,25 @@ class _MapStartControllerState extends State<MapStartController> {
   final MapController _mapController = MapController();
   LatLng _currentPosition = LatLng(0.0, 0.0);
   List<Marker> _markers = [];
-  final String apiUrl = 'http://192.168.1.16/apis/Api_Registrosruido.php';
+  final String apiUrl = 'http://192.168.1.14/apis/Api_Registrosruido.php';
+  Timer? _timer;  // Variable para el Timer
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
     _fetchNoiseRecords();
+    // Iniciar el Timer para actualizar los marcadores cada 10 segundos
+    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+      _fetchNoiseRecords();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Cancelar el Timer cuando el widget se destruya
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -69,7 +86,7 @@ class _MapStartControllerState extends State<MapStartController> {
         if (data is Map<String, dynamic> && data['status'] == 1) {
           _updateMarkers(data['data']);
         } else {
-          print("Error en datos de la API: ${data['message']}"); // Manejo de errores
+          print("Error en datos de la API: ${data['message']}");
         }
       } else {
         print("Error en la respuesta HTTP: Código ${response.statusCode}");
@@ -112,6 +129,10 @@ class _MapStartControllerState extends State<MapStartController> {
     setState(() {
       _markers = markers;
     });
+  }
+
+  Future<void> reloadMarkers() async {
+    await _fetchNoiseRecords();
   }
 
   @override
