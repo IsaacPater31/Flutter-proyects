@@ -1,144 +1,134 @@
+import 'package:appruido/controllers/Webreports_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:appruido/controllers/MapStart_Controller.dart';
 import 'dart:async';
 
-class NoiseMapWithReports extends StatefulWidget {
+class WebView extends StatefulWidget {
   @override
-  _NoiseMapWithReportsState createState() => _NoiseMapWithReportsState();
+  _WebViewState createState() => _WebViewState();
 }
 
-class _NoiseMapWithReportsState extends State<NoiseMapWithReports> {
-  final MapController _mapController = MapController();
-  final String apiUrl = 'http://192.168.1.14/apis/Api_Registrosruido.php';
-  List<Marker> _markers = [];
-  List<Map<String, dynamic>> _noiseReports = [];
-  Timer? _timer;
+class _WebViewState extends State<WebView> {
+  final WebReportsController webReportsController = WebReportsController();
+  bool isLoadingReports = true;
+  String errorMessage = '';
+  Timer? _refreshTimer; // Timer para la actualización en tiempo real
 
   @override
   void initState() {
     super.initState();
-    _fetchNoiseData();
-    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
-      _fetchNoiseData();
-    });
+    _fetchReports(); // Cargar reportes al iniciar
+    _startAutoRefresh(); // Iniciar el temporizador para la actualización automática
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _refreshTimer?.cancel(); // Cancelar el temporizador cuando se destruya la vista
     super.dispose();
   }
 
-  Future<void> _fetchNoiseData() async {
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['status'] == 1) {
-          _updateMarkersAndReports(data['data']);
-        }
+  // Función para iniciar el temporizador de actualización automática
+  void _startAutoRefresh() {
+    _refreshTimer = Timer.periodic(Duration(seconds: 8), (timer) {
+      _fetchReports(); // Actualiza los reportes cada 10 segundos
+    });
+  }
+
+  // Función para cargar los reportes desde el controlador
+  Future<void> _fetchReports() async {
+    setState(() {
+      isLoadingReports = true;
+      errorMessage = ''; // Resetear cualquier mensaje de error anterior
+    });
+
+    await webReportsController.fetchReports(); // Usamos el controlador WebReportsController
+
+    setState(() {
+      isLoadingReports = false;
+      if (webReportsController.reportData.isEmpty) {
+        errorMessage = 'No se han recibido reportes.';
+      } else {
+        errorMessage = '';
       }
-    } catch (e) {
-      print("Error fetching data: $e");
+    });
+  }
+
+  // Función para asignar colores según el nivel de ruido con los rangos proporcionados
+  Color getNoiseLevelColor(double nivelRuido) {
+    if (nivelRuido < 65) {
+      return Colors.green;  // Bajo nivel de ruido
+    } else if (nivelRuido < 85) {
+      return Colors.yellow; // Nivel moderado
+    } else {
+      return Colors.red;    // Nivel alto
     }
   }
 
-  void _updateMarkersAndReports(List<dynamic> records) {
-    List<Marker> markers = [];
-    List<Map<String, dynamic>> reports = [];
-
-    for (var record in records) {
-      double nivelRuido = (record['Nivel_Ruido'] as num).toDouble();
-      LatLng position = LatLng(
-        (record['Latitud'] as num).toDouble(),
-        (record['Longitud'] as num).toDouble(),
-      );
-
-      String fecha = record['Fecha'];
-      String hora = record['Hora'];
-      String usuario = record['Usuario_ID'];
-
-      Color markerColor;
-      if (nivelRuido < 65) {
-        markerColor = Colors.green;
-      } else if (nivelRuido < 85) {
-        markerColor = Colors.yellow;
-      } else {
-        markerColor = Colors.red;
-      }
-
-      markers.add(Marker(
-        width: 80.0,
-        height: 80.0,
-        point: position,
-        builder: (ctx) => Icon(Icons.location_pin, color: markerColor, size: 40),
-      ));
-
-      reports.add({
-        'nivelRuido': nivelRuido,
-        'fecha': fecha,
-        'hora': hora,
-        'usuario': usuario,
-        'color': markerColor,
-      });
+  // Función para obtener el ícono según el nivel de ruido con los rangos proporcionados
+  IconData getNoiseLevelIcon(double nivelRuido) {
+    if (nivelRuido < 65) {
+      return Icons.volume_up;   // Bajo volumen
+    } else if (nivelRuido < 85) {
+      return Icons.volume_mute; // Moderado
+    } else {
+      return Icons.headset_off; // Nivel alto
     }
-
-    setState(() {
-      _markers = markers;
-      _noiseReports = reports;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Mapa y Reportes'),
+      ),
       body: Row(
         children: [
-          // Mapa ocupando el 50% izquierdo
+          // Panel izquierdo: Mapa
           Expanded(
-            flex: 5,
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                center: LatLng(0.0, 0.0),
-                zoom: 13.0,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: ['a', 'b', 'c'],
-                  userAgentPackageName: 'com.example.appruido',
-                ),
-                MarkerLayer(
-                  markers: _markers,
-                ),
-              ],
-            ),
+            flex: 6,
+            child: MapStartController(),
           ),
-          // Lista de reportes ocupando el 50% derecho
+          // Panel derecho: Reportes
           Expanded(
-            flex: 5,
-            child: ListView.builder(
-              itemCount: _noiseReports.length,
-              itemBuilder: (context, index) {
-                final report = _noiseReports[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: report['color'],
-                      radius: 10,
-                    ),
-                    title: Text("Nivel de ruido: ${report['nivelRuido']} dB"),
-                    subtitle: Text(
-                        "Fecha: ${report['fecha']} - Hora: ${report['hora']}\nUsuario: ${report['usuario']}"),
-                  ),
-                );
-              },
-            ),
+            flex: 4,
+            child: isLoadingReports
+                ? Center(child: CircularProgressIndicator()) // Mostramos cargando
+                : errorMessage.isNotEmpty
+                    ? Center(child: Text(errorMessage)) // Mensaje de error
+                    : ListView.builder(
+                        itemCount: webReportsController.reportData.length,
+                        itemBuilder: (context, index) {
+                          var report = webReportsController.reportData[index];
+                          double nivelRuido =
+                              double.tryParse(report['Nivel_Ruido'].toString()) ?? 0.0;
+
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            child: ListTile(
+                              leading: Icon(
+                                getNoiseLevelIcon(nivelRuido), // Mostrar ícono según el nivel
+                                color: getNoiseLevelColor(nivelRuido), // Color del ícono
+                              ),
+                              title: Text(
+                                'Nivel de Ruido: ${nivelRuido.toStringAsFixed(1)} dB',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Fecha: ${report['Fecha']} - Hora: ${report['Hora']}',
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              trailing: Icon(Icons.location_on),
+                              onTap: () {
+                                print('Detalles del reporte: ${report['Id_Medida']}');
+                              },
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
