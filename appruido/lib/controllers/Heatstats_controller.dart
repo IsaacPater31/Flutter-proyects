@@ -4,10 +4,11 @@ import 'package:http/http.dart' as http;
 class HeatMapController {
   final String apiUrl = 'http://192.168.1.13/apis/Api_Heatmap.php';
 
-  /// Obtiene los datos del mapa de calor por día y opcionalmente por hora
-  Future<List<Map<String, dynamic>>> fetchHeatMapData(String fecha, {int? hora}) async {
-    print('Iniciando solicitud para el mapa de calor: Fecha: $fecha, Hora: ${hora ?? "Todo el día"}');
+  /// Tamaño de la celda para calcular áreas
+  final double gridSize = 0.02; // Grados, ajustable según necesidad
 
+  /// Obtiene los datos del mapa de calor desde el API y calcula intensidades por área
+  Future<List<Map<String, dynamic>>> fetchHeatMapData(String fecha, {int? hora}) async {
     try {
       // Crear el cuerpo de la solicitud POST
       final body = hora != null
@@ -20,51 +21,72 @@ class HeatMapController {
         body: body,
       );
 
-      print('Respuesta recibida con código: ${response.statusCode}');
-      print('Contenido de la respuesta: ${response.body}');
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
         if (responseData['status'] == 1 && responseData['data'] != null) {
-          print('Datos procesados correctamente.');
+          // Procesar y agrupar datos por áreas
           return _processHeatMapData(responseData['data']);
         } else {
-          print('Error en los datos recibidos: ${responseData['message']}');
-          return _generateEmptyHeatMapData();
+          print('No se encontraron datos: ${responseData['message']}');
+          return [];
         }
       } else {
-        print('Error en el servidor: Código ${response.statusCode}');
-        throw Exception('Error en el servidor. Código: ${response.statusCode}');
+        throw Exception('Error en el servidor: Código ${response.statusCode}');
       }
     } catch (e) {
-      print('Excepción durante la solicitud: $e');
-      throw Exception('Error al realizar la solicitud: $e');
+      print('Error al obtener datos del API: $e');
+      throw Exception('Error al obtener datos del mapa de calor');
     }
   }
 
-  /// Procesa los datos del mapa de calor, asignando 0 a horas sin registros
+  /// Agrupa los puntos en áreas y calcula intensidades promedio
   List<Map<String, dynamic>> _processHeatMapData(List<dynamic> data) {
-    print('Procesando datos del mapa de calor: $data');
-
-    // Generar datos completos (0 para áreas no reportadas)
-    final List<Map<String, dynamic>> completeData = [];
+    final Map<String, List<Map<String, double>>> groupedAreas = {};
 
     for (var entry in data) {
-      completeData.add({
-        'lat': entry['lat'],
-        'lng': entry['lng'],
-        'nivelRuido': entry['nivelRuido'] ?? 0, // Asigna 0 si el nivel de ruido es nulo
-      });
-      print('Punto procesado: Lat: ${entry['lat']}, Lng: ${entry['lng']}, Ruido: ${entry['nivelRuido'] ?? 0}');
+      final double lat = entry['lat'];
+      final double lng = entry['lng'];
+      final double nivelRuido = entry['nivelRuido'];
+
+      // Calcula índices de la celda
+      final int gridLat = (lat / gridSize).floor();
+      final int gridLng = (lng / gridSize).floor();
+      final String cellKey = '$gridLat:$gridLng';
+
+      // Agrupa puntos en la celda
+      if (!groupedAreas.containsKey(cellKey)) {
+        groupedAreas[cellKey] = [];
+      }
+      groupedAreas[cellKey]!.add({'lat': lat, 'lng': lng, 'nivelRuido': nivelRuido});
     }
 
-    return completeData;
-  }
+    // Calcular promedios por celda y crear áreas
+    final List<Map<String, dynamic>> areas = [];
+    groupedAreas.forEach((cellKey, puntos) {
+      // Calcular promedio de latitud, longitud y nivel de ruido
+      double sumLat = 0;
+      double sumLng = 0;
+      double sumRuido = 0;
 
-  /// Genera un conjunto vacío de datos para el mapa de calor
-  List<Map<String, dynamic>> _generateEmptyHeatMapData() {
-    print('Generando datos vacíos para el mapa de calor.');
-    return [];
+      for (var punto in puntos) {
+        sumLat += punto['lat']!;
+        sumLng += punto['lng']!;
+        sumRuido += punto['nivelRuido']!;
+      }
+
+      final int totalPuntos = puntos.length;
+      final double promedioLat = sumLat / totalPuntos;
+      final double promedioLng = sumLng / totalPuntos;
+      final double promedioRuido = sumRuido / totalPuntos;
+
+      areas.add({
+        'lat': promedioLat,
+        'lng': promedioLng,
+        'nivelRuido': promedioRuido,
+      });
+    });
+
+    return areas;
   }
 }

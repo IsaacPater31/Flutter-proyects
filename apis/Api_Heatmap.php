@@ -35,19 +35,25 @@ $hora = isset($data['hora']) ? $conn->real_escape_string($data['hora']) : null;
 
 // Construir la consulta SQL según los parámetros
 if ($hora) {
-    // Consulta para un día y una hora específica
+    // Rango de horas basado en la hora proporcionada
+    $horaInicio = $hora . ':00:00';
+    $horaFin = $hora . ':59:59';
+
+    // Consulta para una fecha específica y un rango de horas
     $sql = "
-        SELECT lat, lng, AVG(Nivel_Ruido) AS nivelRuido
+        SELECT Latitud AS lat, Longitud AS lng, AVG(Nivel_Ruido) AS nivelRuido
         FROM ruido
-        WHERE Fecha = '$fecha' AND HOUR(Hora) = '$hora'
-        GROUP BY lat, lng";
+        WHERE Fecha = '$fecha' AND Hora BETWEEN '$horaInicio' AND '$horaFin'
+        GROUP BY Latitud, Longitud
+    ";
 } else {
     // Consulta para todo el día
     $sql = "
-        SELECT lat, lng, AVG(Nivel_Ruido) AS nivelRuido
+        SELECT Latitud AS lat, Longitud AS lng, AVG(Nivel_Ruido) AS nivelRuido
         FROM ruido
         WHERE Fecha = '$fecha'
-        GROUP BY lat, lng";
+        GROUP BY Latitud, Longitud
+    ";
 }
 
 $result = $conn->query($sql);

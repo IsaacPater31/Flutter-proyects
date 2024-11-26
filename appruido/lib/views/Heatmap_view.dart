@@ -49,7 +49,7 @@ class _HeatMapViewState extends State<HeatMapView> {
 
           return CircleMarker(
             point: position,
-            radius: intensity / 2,
+            radius: 50, // Ajustar según necesidad
             color: color,
             borderColor: Colors.transparent,
           );
@@ -75,6 +75,7 @@ class _HeatMapViewState extends State<HeatMapView> {
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
+        _selectedHour = null; // Restablecer hora para mostrar todo el día
       });
       _fetchHeatMapData();
     }
@@ -92,7 +93,7 @@ class _HeatMapViewState extends State<HeatMapView> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              center: LatLng(0, 0),
+              center: LatLng(10.437763, -75.517159),
               zoom: 13.0,
             ),
             children: [
