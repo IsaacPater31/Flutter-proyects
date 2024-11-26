@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HeatMapView extends StatefulWidget {
   @override
@@ -17,11 +18,32 @@ class _HeatMapViewState extends State<HeatMapView> {
   DateTime _selectedDate = DateTime.now();
   int? _selectedHour;
   bool _isLoading = false;
+  LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
+    _initializeMap();
+  }
+
+  Future<void> _initializeMap() async {
+    await _getCurrentLocation();
     _fetchHeatMapData();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+      });
+      _mapController.move(_currentLocation!, 13.0);
+    } catch (e) {
+      print('Error obteniendo la ubicación: $e');
+      setState(() {
+        _currentLocation = LatLng(0, 0); // Valor predeterminado en caso de error
+      });
+    }
   }
 
   Future<void> _fetchHeatMapData() async {
@@ -31,7 +53,7 @@ class _HeatMapViewState extends State<HeatMapView> {
 
     try {
       final String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      final data = await _heatMapController.fetchHeatMapData(formattedDate, hora: _selectedHour);
+      final data = await _heatMapController.fetchClusteredHeatMapData(formattedDate, hora: _selectedHour);
 
       setState(() {
         _heatMapCircles = data.map((entry) {
@@ -81,6 +103,12 @@ class _HeatMapViewState extends State<HeatMapView> {
     }
   }
 
+  void _goToCurrentLocation() {
+    if (_currentLocation != null) {
+      _mapController.move(_currentLocation!, 13.0);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +121,7 @@ class _HeatMapViewState extends State<HeatMapView> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              center: LatLng(10.437763, -75.517159),
+              center: _currentLocation ?? LatLng(0, 0),
               zoom: 13.0,
             ),
             children: [
@@ -109,6 +137,15 @@ class _HeatMapViewState extends State<HeatMapView> {
             Center(
               child: CircularProgressIndicator(),
             ),
+          Positioned(
+            bottom: 16.0,
+            right: 16.0,
+            child: FloatingActionButton(
+              onPressed: _goToCurrentLocation,
+              child: Icon(Icons.my_location),
+              backgroundColor: Colors.blue,
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: Padding(

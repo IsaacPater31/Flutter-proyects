@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';  // Importar para usar Timer
+import 'dart:async';
 
 class MapStartController extends StatefulWidget {
   final Function()? onReloadMarkers;
@@ -20,7 +20,7 @@ class _MapStartControllerState extends State<MapStartController> {
   LatLng _currentPosition = LatLng(0.0, 0.0);
   List<Marker> _markers = [];
   final String apiUrl = 'http://192.168.1.13/apis/Api_Registrosruido.php';
-  Timer? _timer;  // Variable para el Timer
+  Timer? _timer;
 
   @override
   void initState() {
@@ -35,7 +35,6 @@ class _MapStartControllerState extends State<MapStartController> {
 
   @override
   void dispose() {
-    // Cancelar el Timer cuando el widget se destruya
     _timer?.cancel();
     super.dispose();
   }
@@ -105,10 +104,6 @@ class _MapStartControllerState extends State<MapStartController> {
         (record['Longitud'] as num).toDouble(),
       );
 
-      String fecha = record['Fecha'];
-      String hora = record['Hora'];
-      print("Registro: Nivel de ruido: $nivelRuido, Fecha: $fecha, Hora: $hora, Coordenadas: $position");
-
       Color markerColor;
       if (nivelRuido < 65) {
         markerColor = Colors.green;
@@ -137,25 +132,46 @@ class _MapStartControllerState extends State<MapStartController> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(
-        center: _currentPosition,
-        zoom: 13.0,
-        onMapReady: () {
-          if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
-            _mapController.move(_currentPosition, 15.0);
-          }
-        },
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          userAgentPackageName: 'com.example.appruido',
+        // Mapa ocupando el 70% de la pantalla superior
+        Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                center: _currentPosition,
+                zoom: 13.0,
+                onMapReady: () {
+                  if (_currentPosition.latitude != 0.0 && _currentPosition.longitude != 0.0) {
+                    _mapController.move(_currentPosition, 15.0);
+                  }
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: ['a', 'b', 'c'],
+                  userAgentPackageName: 'com.example.appruido',
+                ),
+                MarkerLayer(
+                  markers: _markers,
+                ),
+              ],
+            ),
+          ),
         ),
-        MarkerLayer(
-          markers: _markers,
+        // Botón para centrar en la ubicación actual
+        Positioned(
+          bottom: MediaQuery.of(context).size.height * 0.3 - 60, // Ajuste para la parte inferior derecha del 70%
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: _getCurrentLocation,
+            child: Icon(Icons.my_location),
+            backgroundColor: Colors.blue,
+          ),
         ),
       ],
     );

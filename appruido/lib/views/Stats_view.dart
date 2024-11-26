@@ -1,9 +1,9 @@
-import 'package:appruido/views/Heatmap_view.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import 'package:appruido/controllers/Date_controller.dart';
 import 'package:appruido/controllers/HourStats_controller.dart';
+import 'package:appruido/views/Heatmap_view.dart';
 
 class StatsView extends StatefulWidget {
   @override
@@ -128,28 +128,42 @@ class _StatsViewState extends State<StatsView> {
                 children: [
                   // Selección de fecha
                   Card(
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Fecha seleccionada:',
-                            style: TextStyle(
-                                fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
-                          ),
-                          TextButton(
-                            onPressed: () => _selectDate(context),
-                            child: Text(
-                              DateFormat('yyyy-MM-dd').format(_selectedDate),
-                              style: TextStyle(fontSize: screenWidth * 0.045),
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Fecha seleccionada:',
+                                    style: TextStyle(
+                                      fontSize: screenWidth * 0.045,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('yyyy-MM-dd').format(_selectedDate),
+                                    style: TextStyle(fontSize: screenWidth * 0.045),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                            TextButton(
+                              onPressed: () => _selectDate(context),
+                              child: Text(
+                                'Cambiar',
+                                style: TextStyle(fontSize: screenWidth * 0.045),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+
+
                   SizedBox(height: screenWidth * 0.04),
 
                   // Gráfica diaria
@@ -162,7 +176,7 @@ class _StatsViewState extends State<StatsView> {
                           height: 300,
                           child: SfCartesianChart(
                             primaryXAxis: CategoryAxis(),
-                            title: ChartTitle(text: 'Niveles de ruido en la fecha seleccionada '),
+                            title: ChartTitle(text: 'Niveles de ruido en la fecha seleccionada'),
                             series: <ChartSeries>[
                               ColumnSeries<NoiseData, String>(
                                 dataSource: _createChartData(),
@@ -246,29 +260,27 @@ class _StatsViewState extends State<StatsView> {
           ),
 
           // Botón para ver el mapa de calor
-          // Botón para ver el mapa de calor
-Container(
-  padding: const EdgeInsets.all(16.0),
-  width: double.infinity,
-  child: ElevatedButton.icon(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HeatMapView()),
-      );
-    },
-    icon: Icon(Icons.map, size: 24),
-    label: Text('Ver Mapa de Calor', style: TextStyle(fontSize: 16)),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.green,
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
-  ),
-),
-
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HeatMapView()),
+                );
+              },
+              icon: Icon(Icons.map, size: 24),
+              label: Text('Ver Mapa de Calor', style: TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -3,14 +3,11 @@ import 'package:http/http.dart' as http;
 
 class HeatMapController {
   final String apiUrl = 'http://192.168.1.13/apis/Api_Heatmap.php';
+  final double proximityThreshold = 0.01; // Umbral de proximidad en grados
 
-  /// Tamaño de la celda para calcular áreas
-  final double gridSize = 0.02; // Grados, ajustable según necesidad
-
-  /// Obtiene los datos del mapa de calor desde el API y calcula intensidades por área
-  Future<List<Map<String, dynamic>>> fetchHeatMapData(String fecha, {int? hora}) async {
+  /// Obtiene y procesa los datos del mapa de calor agrupados por proximidad
+  Future<List<Map<String, dynamic>>> fetchClusteredHeatMapData(String fecha, {int? hora}) async {
     try {
-      // Crear el cuerpo de la solicitud POST
       final body = hora != null
           ? jsonEncode({'fecha': fecha, 'hora': hora.toString()})
           : jsonEncode({'fecha': fecha});
@@ -25,8 +22,7 @@ class HeatMapController {
         final responseData = jsonDecode(response.body);
 
         if (responseData['status'] == 1 && responseData['data'] != null) {
-          // Procesar y agrupar datos por áreas
-          return _processHeatMapData(responseData['data']);
+          return _clusterHeatMapData(responseData['data']);
         } else {
           print('No se encontraron datos: ${responseData['message']}');
           return [];
@@ -40,53 +36,58 @@ class HeatMapController {
     }
   }
 
-  /// Agrupa los puntos en áreas y calcula intensidades promedio
-  List<Map<String, dynamic>> _processHeatMapData(List<dynamic> data) {
-    final Map<String, List<Map<String, double>>> groupedAreas = {};
+  /// Agrupa los datos del mapa de calor en áreas cercanas y calcula promedios
+  List<Map<String, dynamic>> _clusterHeatMapData(List<dynamic> data) {
+    final List<Map<String, dynamic>> clusters = [];
 
     for (var entry in data) {
       final double lat = entry['lat'];
       final double lng = entry['lng'];
       final double nivelRuido = entry['nivelRuido'];
 
-      // Calcula índices de la celda
-      final int gridLat = (lat / gridSize).floor();
-      final int gridLng = (lng / gridSize).floor();
-      final String cellKey = '$gridLat:$gridLng';
+      bool addedToCluster = false;
 
-      // Agrupa puntos en la celda
-      if (!groupedAreas.containsKey(cellKey)) {
-        groupedAreas[cellKey] = [];
+      // Intenta agregar este punto a un cluster existente
+      for (var cluster in clusters) {
+        double clusterLat = cluster['lat'];
+        double clusterLng = cluster['lng'];
+
+        if (_isWithinProximity(lat, lng, clusterLat, clusterLng)) {
+          // Actualiza los promedios del cluster
+          cluster['lat'] = (cluster['lat'] * cluster['count'] + lat) / (cluster['count'] + 1);
+          cluster['lng'] = (cluster['lng'] * cluster['count'] + lng) / (cluster['count'] + 1);
+          cluster['nivelRuido'] = (cluster['nivelRuido'] * cluster['count'] + nivelRuido) / (cluster['count'] + 1);
+          cluster['count'] += 1;
+          addedToCluster = true;
+          break;
+        }
       }
-      groupedAreas[cellKey]!.add({'lat': lat, 'lng': lng, 'nivelRuido': nivelRuido});
+
+      // Si no pertenece a ningún cluster, crea uno nuevo
+      if (!addedToCluster) {
+        clusters.add({
+          'lat': lat,
+          'lng': lng,
+          'nivelRuido': nivelRuido,
+          'count': 1, // Para rastrear cuántos puntos tiene el cluster
+        });
+      }
     }
 
-    // Calcular promedios por celda y crear áreas
-    final List<Map<String, dynamic>> areas = [];
-    groupedAreas.forEach((cellKey, puntos) {
-      // Calcular promedio de latitud, longitud y nivel de ruido
-      double sumLat = 0;
-      double sumLng = 0;
-      double sumRuido = 0;
+    // Elimina el campo `count` antes de devolver los clusters
+    return clusters.map((cluster) {
+      return {
+        'lat': cluster['lat'],
+        'lng': cluster['lng'],
+        'nivelRuido': cluster['nivelRuido'],
+      };
+    }).toList();
+  }
 
-      for (var punto in puntos) {
-        sumLat += punto['lat']!;
-        sumLng += punto['lng']!;
-        sumRuido += punto['nivelRuido']!;
-      }
-
-      final int totalPuntos = puntos.length;
-      final double promedioLat = sumLat / totalPuntos;
-      final double promedioLng = sumLng / totalPuntos;
-      final double promedioRuido = sumRuido / totalPuntos;
-
-      areas.add({
-        'lat': promedioLat,
-        'lng': promedioLng,
-        'nivelRuido': promedioRuido,
-      });
-    });
-
-    return areas;
+  /// Verifica si dos puntos están dentro del umbral de proximidad
+  bool _isWithinProximity(double lat1, double lng1, double lat2, double lng2) {
+    double latDiff = (lat1 - lat2).abs();
+    double lngDiff = (lng1 - lng2).abs();
+    return latDiff <= proximityThreshold && lngDiff <= proximityThreshold;
   }
 }
