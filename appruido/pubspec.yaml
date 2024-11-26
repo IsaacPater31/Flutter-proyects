@@ -19,6 +19,8 @@ dependencies:
   noise_meter: ^5.0.2
   url_launcher: ^6.3.1
   permission_handler: ^11.3.1
+  intl: ^0.19.0
+  syncfusion_flutter_charts: ^20.2.48
   
 
 

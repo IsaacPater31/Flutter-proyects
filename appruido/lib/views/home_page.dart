@@ -3,6 +3,7 @@ import 'package:appruido/views/Reports_view.dart';
 import 'package:flutter/material.dart';
 import 'package:appruido/controllers/MapStart_Controller.dart'; // Controlador del mapa
 import 'package:appruido/views/Sound_view.dart'; // Vista de medición de sonido
+import 'package:appruido/views/Stats_view.dart'; // Vista de estadísticas
 
 class HomePage extends StatelessWidget {
   @override
@@ -12,9 +13,9 @@ class HomePage extends StatelessWidget {
         title: Text(
           'Mapa de Ruido',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
-        ), // Título más pequeño
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent, // Color del encabezado
+        backgroundColor: Colors.blueAccent,
       ),
       body: Stack(
         children: [
@@ -33,7 +34,7 @@ class HomePage extends StatelessWidget {
             right: 0,
             height: MediaQuery.of(context).size.height * 0.3, // Ocupa el 30% del alto
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 500), // Animación suave
+              duration: Duration(milliseconds: 500),
               curve: Curves.easeInOut,
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -64,7 +65,6 @@ class HomePage extends StatelessWidget {
                       children: [
                         FilledButton.icon(
                           onPressed: () {
-                            print('Botón "Realizar Medición" presionado');
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SoundView()),
@@ -82,7 +82,6 @@ class HomePage extends StatelessWidget {
                         ),
                         FilledButton.icon(
                           onPressed: () {
-                            print('Botón "Ver Reportes" presionado');
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => ReportsView()),
@@ -109,7 +108,10 @@ class HomePage extends StatelessWidget {
                       children: [
                         FilledButton.icon(
                           onPressed: () {
-                            print('Botón "Generar Estadísticas" presionado');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => StatsView()),
+                            );
                           },
                           icon: Icon(Icons.bar_chart, color: Colors.white),
                           label: Text(
@@ -123,7 +125,6 @@ class HomePage extends StatelessWidget {
                         ),
                         FilledButton.icon(
                           onPressed: () {
-                            print('Botón "Llamar Autoridades" presionado');
                             CopsController.callEmergencyLine();
                           },
                           icon: Icon(Icons.phone, color: Colors.white),
