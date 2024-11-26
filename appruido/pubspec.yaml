@@ -21,6 +21,7 @@ dependencies:
   permission_handler: ^11.3.1
   intl: ^0.19.0
   syncfusion_flutter_charts: ^20.2.48
+  flutter_map_heatmap: ^0.0.5
   
 
 
