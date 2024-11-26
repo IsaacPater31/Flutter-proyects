@@ -1,6 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 header('Content-Type: application/json');
 
-// Conexión a la base de datos
+// Configuración de conexión a la base de datos
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -22,28 +22,29 @@ if ($conn->connect_error) {
     die(json_encode(["status" => "error", "message" => "Conexión fallida: " . $conn->connect_error]));
 }
 
-// Verificar que se reciba la hora
-if (!isset($_GET['hora'])) {
-    die(json_encode(["status" => "error", "message" => "No se proporcionó la hora."]));
-}
-
-$hora = (int)$conn->real_escape_string($_GET['hora']);
-
-// Consulta para filtrar registros por una hora específica (todas las fechas)
-$sql = "SELECT 
-            AVG(Nivel_Ruido) AS Promedio, 
-            MIN(Nivel_Ruido) AS Minimo, 
-            MAX(Nivel_Ruido) AS Pico 
-        FROM ruido 
-        WHERE HOUR(Hora) = $hora";
+// Consulta para calcular el promedio de ruido por cada hora considerando todas las fechas
+$sql = "
+    SELECT 
+        HOUR(Hora) AS hora,
+        AVG(Nivel_Ruido) AS nivel_ruido_promedio
+    FROM ruido
+    GROUP BY HOUR(Hora)
+    ORDER BY HOUR(Hora)";
 
 $result = $conn->query($sql);
 
-if ($result && $result->num_rows > 0) {
-    $data = $result->fetch_assoc();
-    echo json_encode(["status" => 1, "data" => $data]);
+if ($result) {
+    $hourlyData = [];
+    while ($row = $result->fetch_assoc()) {
+        $hourlyData[] = [
+            "hora" => str_pad($row['hora'], 2, '0', STR_PAD_LEFT) . ":00",
+            "nivel_ruido" => round($row['nivel_ruido_promedio'], 2)
+        ];
+    }
+
+    echo json_encode(["status" => 1, "hourly" => $hourlyData]);
 } else {
-    echo json_encode(["status" => 0, "message" => "No se encontraron registros para la hora proporcionada."]);
+    echo json_encode(["status" => 0, "message" => "No se encontraron registros."]);
 }
 
 $conn->close();
