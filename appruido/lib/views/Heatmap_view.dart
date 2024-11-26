@@ -41,7 +41,7 @@ class _HeatMapViewState extends State<HeatMapView> {
     } catch (e) {
       print('Error obteniendo la ubicación: $e');
       setState(() {
-        _currentLocation = LatLng(0, 0); // Valor predeterminado en caso de error
+        _currentLocation = LatLng(0, 0);
       });
     }
   }
@@ -71,7 +71,7 @@ class _HeatMapViewState extends State<HeatMapView> {
 
           return CircleMarker(
             point: position,
-            radius: 50, // Ajustar según necesidad
+            radius: 50,
             color: color,
             borderColor: Colors.transparent,
           );
@@ -97,7 +97,7 @@ class _HeatMapViewState extends State<HeatMapView> {
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
-        _selectedHour = null; // Restablecer hora para mostrar todo el día
+        _selectedHour = null;
       });
       _fetchHeatMapData();
     }
@@ -113,8 +113,12 @@ class _HeatMapViewState extends State<HeatMapView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa de Calor'),
+        title: Text(
+          'Mapa de Calor',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
       body: Stack(
         children: [
@@ -135,46 +139,67 @@ class _HeatMapViewState extends State<HeatMapView> {
           ),
           if (_isLoading)
             Center(
-              child: CircularProgressIndicator(),
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
             ),
           Positioned(
-            bottom: 16.0,
+            bottom: 80.0,
             right: 16.0,
             child: FloatingActionButton(
               onPressed: _goToCurrentLocation,
+              backgroundColor: Colors.teal,
               child: Icon(Icons.my_location),
-              backgroundColor: Colors.blue,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Card(
+              elevation: 10,
+              margin: EdgeInsets.zero,
+              color: Colors.white.withOpacity(0.9),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _selectDate(context),
+                      icon: Icon(Icons.calendar_today),
+                      label: Text('Fecha'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                      ),
+                    ),
+                    DropdownButton<int>(
+                      hint: Text('Hora'),
+                      value: _selectedHour,
+                      items: List.generate(24, (index) => index).map((hour) {
+                        return DropdownMenuItem(
+                          value: hour,
+                          child: Text('$hour:00'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedHour = value;
+                        });
+                        _fetchHeatMapData();
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: Text('Seleccionar Fecha'),
-            ),
-            DropdownButton<int>(
-              hint: Text('Hora'),
-              value: _selectedHour,
-              items: List.generate(24, (index) => index).map((hour) {
-                return DropdownMenuItem(
-                  value: hour,
-                  child: Text('$hour:00'),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedHour = value;
-                });
-                _fetchHeatMapData();
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
