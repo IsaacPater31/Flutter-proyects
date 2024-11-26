@@ -1,3 +1,4 @@
+import 'package:appruido/views/Heatmap_view.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
@@ -245,24 +246,29 @@ class _StatsViewState extends State<StatsView> {
           ),
 
           // Botón para ver el mapa de calor
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/heatmap'); // Ajusta la ruta según el diseño
-              },
-              icon: Icon(Icons.map, size: 24),
-              label: Text('Ver Mapa de Calor', style: TextStyle(fontSize: 16)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
+          // Botón para ver el mapa de calor
+Container(
+  padding: const EdgeInsets.all(16.0),
+  width: double.infinity,
+  child: ElevatedButton.icon(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HeatMapView()),
+      );
+    },
+    icon: Icon(Icons.map, size: 24),
+    label: Text('Ver Mapa de Calor', style: TextStyle(fontSize: 16)),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green,
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+  ),
+),
+
         ],
       ),
     );

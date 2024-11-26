@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HeatMapController {
-  final String apiUrl = 'http://192.168.1.18/apis/Api_Filtroporhora.php';
+  final String apiUrl = 'http://192.168.1.13/apis/Api_Heatmap.php';
 
   /// Obtiene los datos del mapa de calor por día y opcionalmente por hora
   Future<List<Map<String, dynamic>>> fetchHeatMapData(String fecha, {int? hora}) async {
