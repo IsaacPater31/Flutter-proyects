@@ -111,139 +111,179 @@ class _StatsViewState extends State<StatsView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Estadísticas de Ruido'),
+        title: Text(
+          'Estadísticas de Ruido',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Selección de fecha
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Fecha seleccionada:',
-                  style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () => _selectDate(context),
-                  child: Text(
-                    DateFormat('yyyy-MM-dd').format(_selectedDate),
-                    style: TextStyle(fontSize: screenWidth * 0.045),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Selección de fecha
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Fecha seleccionada:',
+                            style: TextStyle(
+                                fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+                          ),
+                          TextButton(
+                            onPressed: () => _selectDate(context),
+                            child: Text(
+                              DateFormat('yyyy-MM-dd').format(_selectedDate),
+                              style: TextStyle(fontSize: screenWidth * 0.045),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                  SizedBox(height: screenWidth * 0.04),
+
+                  // Gráfica diaria
+                  _buildSectionHeader(
+                    title: 'Variación por hora',
+                    description: 'Esta gráfica muestra los niveles de ruido promedio por hora para la fecha seleccionada.',
+                  ),
+                  _stats != null
+                      ? SizedBox(
+                          height: 300,
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            title: ChartTitle(text: 'Niveles de ruido en la fecha seleccionada '),
+                            series: <ChartSeries>[
+                              ColumnSeries<NoiseData, String>(
+                                dataSource: _createChartData(),
+                                xValueMapper: (NoiseData data, _) => data.hour,
+                                yValueMapper: (NoiseData data, _) => data.level,
+                                color: Colors.blue,
+                              )
+                            ],
+                          ),
+                        )
+                      : _errorMessage != null
+                          ? Center(
+                              child: Text(
+                                _errorMessage!,
+                                style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.045),
+                              ),
+                            )
+                          : Center(child: CircularProgressIndicator()),
+
+                  SizedBox(height: screenWidth * 0.06),
+
+                  // Resumen
+                  _buildSectionHeader(
+                    title: 'Resumen del día',
+                    description: 'Este resumen muestra los valores promedio, mínimos y máximos de ruido registrados en la fecha seleccionada.',
+                  ),
+                  _stats != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Promedio de ruido: ${_stats!['summary']?['Promedio'] ?? "Sin datos"} dB',
+                              style: TextStyle(fontSize: screenWidth * 0.045),
+                            ),
+                            Text(
+                              'Nivel mínimo de ruido: ${_stats!['summary']?['Minimo'] ?? "Sin datos"} dB',
+                              style: TextStyle(fontSize: screenWidth * 0.045),
+                            ),
+                            Text(
+                              'Nivel pico de ruido: ${_stats!['summary']?['Pico'] ?? "Sin datos"} dB',
+                              style: TextStyle(fontSize: screenWidth * 0.045),
+                            ),
+                          ],
+                        )
+                      : Container(),
+
+                  SizedBox(height: screenWidth * 0.06),
+
+                  // Gráfica global por hora
+                  _buildSectionHeader(
+                    title: 'Estadísticas por hora (globales)',
+                    description: 'Esta gráfica muestra los niveles promedio de ruido por hora considerando todos los registros.',
+                  ),
+                  _hourlyStats != null
+                      ? SizedBox(
+                          height: 300,
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            title: ChartTitle(text: 'Promedio global por hora'),
+                            series: <ChartSeries>[
+                              ColumnSeries<NoiseData, String>(
+                                dataSource: _createHourlyChartData(),
+                                xValueMapper: (NoiseData data, _) => data.hour,
+                                yValueMapper: (NoiseData data, _) => data.level,
+                                color: Colors.orange,
+                              )
+                            ],
+                          ),
+                        )
+                      : _hourlyErrorMessage != null
+                          ? Center(
+                              child: Text(
+                                _hourlyErrorMessage!,
+                                style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.045),
+                              ),
+                            )
+                          : Center(child: CircularProgressIndicator()),
+                ],
+              ),
+            ),
+          ),
+
+          // Botón para ver el mapa de calor
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/heatmap'); // Ajusta la ruta según el diseño
+              },
+              icon: Icon(Icons.map, size: 24),
+              label: Text('Ver Mapa de Calor', style: TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ],
+              ),
             ),
-            SizedBox(height: screenWidth * 0.04),
-
-            // Gráfica diaria
-            Text(
-              'Variación por hora:',
-              style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Esta gráfica muestra los niveles de ruido promedio por hora para la fecha seleccionada.',
-              style: TextStyle(fontSize: screenWidth * 0.04),
-            ),
-            SizedBox(height: screenWidth * 0.03),
-            _stats != null
-                ? SizedBox(
-                    height: 300,
-                    child: SfCartesianChart(
-                      primaryXAxis: CategoryAxis(),
-                      title: ChartTitle(text: 'Niveles de ruido por hora'),
-                      series: <ChartSeries>[
-                        ColumnSeries<NoiseData, String>(
-                          dataSource: _createChartData(),
-                          xValueMapper: (NoiseData data, _) => data.hour,
-                          yValueMapper: (NoiseData data, _) => data.level,
-                          color: Colors.blue,
-                        )
-                      ],
-                    ),
-                  )
-                : _errorMessage != null
-                    ? Center(
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.045),
-                        ),
-                      )
-                    : Center(child: CircularProgressIndicator()),
-
-            SizedBox(height: screenWidth * 0.06),
-
-            // Resumen
-            Text(
-              'Resumen del día:',
-              style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Este resumen muestra los valores promedio, mínimos y máximos de ruido registrados en la fecha seleccionada.',
-              style: TextStyle(fontSize: screenWidth * 0.04),
-            ),
-            SizedBox(height: screenWidth * 0.03),
-            _stats != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Promedio de ruido: ${_stats!['summary']?['Promedio'] ?? "Sin datos"} dB',
-                        style: TextStyle(fontSize: screenWidth * 0.045),
-                      ),
-                      Text(
-                        'Nivel mínimo de ruido: ${_stats!['summary']?['Minimo'] ?? "Sin datos"} dB',
-                        style: TextStyle(fontSize: screenWidth * 0.045),
-                      ),
-                      Text(
-                        'Nivel pico de ruido: ${_stats!['summary']?['Pico'] ?? "Sin datos"} dB',
-                        style: TextStyle(fontSize: screenWidth * 0.045),
-                      ),
-                    ],
-                  )
-                : Container(),
-
-            SizedBox(height: screenWidth * 0.06),
-
-            // Gráfica global por hora
-            Text(
-              'Estadísticas por hora (globales):',
-              style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Esta gráfica muestra los niveles promedio de ruido por hora considerando todos los registros.',
-              style: TextStyle(fontSize: screenWidth * 0.04),
-            ),
-            SizedBox(height: screenWidth * 0.03),
-            _hourlyStats != null
-                ? SizedBox(
-                    height: 300,
-                    child: SfCartesianChart(
-                      primaryXAxis: CategoryAxis(),
-                      title: ChartTitle(text: 'Promedio global por hora'),
-                      series: <ChartSeries>[
-                        ColumnSeries<NoiseData, String>(
-                          dataSource: _createHourlyChartData(),
-                          xValueMapper: (NoiseData data, _) => data.hour,
-                          yValueMapper: (NoiseData data, _) => data.level,
-                          color: Colors.orange,
-                        )
-                      ],
-                    ),
-                  )
-                : _hourlyErrorMessage != null
-                    ? Center(
-                        child: Text(
-                          _hourlyErrorMessage!,
-                          style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.045),
-                        ),
-                      )
-                    : Center(child: CircularProgressIndicator()),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  /// Construye un encabezado de sección con título y descripción
+  Widget _buildSectionHeader({required String title, required String description}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 4),
+        Text(
+          description,
+          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+        ),
+        SizedBox(height: 12),
+      ],
     );
   }
 }
