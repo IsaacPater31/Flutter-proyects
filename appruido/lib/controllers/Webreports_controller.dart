@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class WebReportsController {
-  final String apiUrl = 'http://192.168.1.18/apis/Api_Registrosruido.php';  // Cambia esta URL según tu API
+  final String apiUrl = 'http://192.168.1.13/apis/Api_Registrosruido.php';  // Cambia esta URL según tu API
   List<dynamic> _reportData = [];  // Lista privada para almacenar los reportes
 
   // Getter para obtener los reportes

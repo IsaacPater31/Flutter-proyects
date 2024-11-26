@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class DateController {
-  final String apiUrl = 'http://192.168.1.18/apis/Api_Filtroporfecha.php';
+  final String apiUrl = 'http://192.168.1.13/apis/Api_Filtroporfecha.php';
 
   /// Realiza una solicitud a la API para obtener estadísticas de una fecha específica.
   Future<Map<String, dynamic>> fetchStatsByDate(String fecha) async {

@@ -19,7 +19,7 @@ class _MapStartControllerState extends State<MapStartController> {
   final MapController _mapController = MapController();
   LatLng _currentPosition = LatLng(0.0, 0.0);
   List<Marker> _markers = [];
-  final String apiUrl = 'http://192.168.1.18/apis/Api_Registrosruido.php';
+  final String apiUrl = 'http://192.168.1.13/apis/Api_Registrosruido.php';
   Timer? _timer;  // Variable para el Timer
 
   @override
