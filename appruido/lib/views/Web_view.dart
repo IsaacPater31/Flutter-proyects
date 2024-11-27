@@ -12,36 +12,34 @@ class _WebViewState extends State<WebView> {
   final WebReportsController webReportsController = WebReportsController();
   bool isLoadingReports = true;
   String errorMessage = '';
-  Timer? _refreshTimer; // Timer para la actualización en tiempo real
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
-    _fetchReports(); // Cargar reportes al iniciar
-    _startAutoRefresh(); // Iniciar el temporizador para la actualización automática
+    _fetchReports();
+    _startAutoRefresh();
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel(); // Cancelar el temporizador cuando se destruya la vista
+    _refreshTimer?.cancel();
     super.dispose();
   }
 
-  // Función para iniciar el temporizador de actualización automática
   void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(Duration(seconds: 8), (timer) {
-      _fetchReports(); // Actualiza los reportes cada 10 segundos
+    _refreshTimer = Timer.periodic(Duration(seconds: 10), (timer) {
+      _fetchReports();
     });
   }
 
-  // Función para cargar los reportes desde el controlador
   Future<void> _fetchReports() async {
     setState(() {
       isLoadingReports = true;
-      errorMessage = ''; // Resetear cualquier mensaje de error anterior
+      errorMessage = '';
     });
 
-    await webReportsController.fetchReports(); // Usamos el controlador WebReportsController
+    await webReportsController.fetchReports();
 
     setState(() {
       isLoadingReports = false;
@@ -53,25 +51,23 @@ class _WebViewState extends State<WebView> {
     });
   }
 
-  // Función para asignar colores según el nivel de ruido con los rangos proporcionados
   Color getNoiseLevelColor(double nivelRuido) {
     if (nivelRuido < 65) {
-      return Colors.green;  // Bajo nivel de ruido
+      return Colors.green;
     } else if (nivelRuido < 85) {
-      return Colors.yellow; // Nivel moderado
+      return Colors.yellow;
     } else {
-      return Colors.red;    // Nivel alto
+      return Colors.red;
     }
   }
 
-  // Función para obtener el ícono según el nivel de ruido con los rangos proporcionados
   IconData getNoiseLevelIcon(double nivelRuido) {
     if (nivelRuido < 65) {
-      return Icons.volume_up;   // Bajo volumen
+      return Icons.volume_up;
     } else if (nivelRuido < 85) {
-      return Icons.volume_mute; // Moderado
+      return Icons.volume_mute;
     } else {
-      return Icons.headset_off; // Nivel alto
+      return Icons.headset_off;
     }
   }
 
@@ -79,56 +75,77 @@ class _WebViewState extends State<WebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa y Reportes'),
+        title: Text('Mapa y Reportes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        backgroundColor: Colors.teal,
       ),
       body: Row(
         children: [
           // Panel izquierdo: Mapa
           Expanded(
-            flex: 6,
-            child: MapStartController(),
+            flex: 5,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1),
+                ),
+              ),
+              child: MapStartController(),
+            ),
           ),
+
           // Panel derecho: Reportes
           Expanded(
-            flex: 4,
-            child: isLoadingReports
-                ? Center(child: CircularProgressIndicator()) // Mostramos cargando
-                : errorMessage.isNotEmpty
-                    ? Center(child: Text(errorMessage)) // Mensaje de error
-                    : ListView.builder(
-                        itemCount: webReportsController.reportData.length,
-                        itemBuilder: (context, index) {
-                          var report = webReportsController.reportData[index];
-                          double nivelRuido =
-                              double.tryParse(report['Nivel_Ruido'].toString()) ?? 0.0;
+            flex: 5,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: isLoadingReports
+                  ? Center(child: CircularProgressIndicator(color: Colors.teal))
+                  : errorMessage.isNotEmpty
+                      ? Center(
+                          child: Text(
+                            errorMessage,
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: webReportsController.reportData.length,
+                          itemBuilder: (context, index) {
+                            var report = webReportsController.reportData[index];
+                            double nivelRuido =
+                                double.tryParse(report['Nivel_Ruido'].toString()) ?? 0.0;
 
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                            child: ListTile(
-                              leading: Icon(
-                                getNoiseLevelIcon(nivelRuido), // Mostrar ícono según el nivel
-                                color: getNoiseLevelColor(nivelRuido), // Color del ícono
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              title: Text(
-                                'Nivel de Ruido: ${nivelRuido.toStringAsFixed(1)} dB',
-                                style: TextStyle(
-                                  color: Colors.black,
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              elevation: 4,
+                              child: ListTile(
+                                leading: Icon(
+                                  getNoiseLevelIcon(nivelRuido),
+                                  color: getNoiseLevelColor(nivelRuido),
+                                  size: 30,
                                 ),
-                              ),
-                              subtitle: Text(
-                                'Fecha: ${report['Fecha']} - Hora: ${report['Hora']}',
-                                style: TextStyle(
-                                  color: Colors.black54,
+                                title: Text(
+                                  'Nivel de Ruido: ${nivelRuido.toStringAsFixed(1)} dB',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
+                                subtitle: Text(
+                                  'Fecha: ${report['Fecha']}\nHora: ${report['Hora']}',
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                                trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                                onTap: () {
+                                  print('Detalles del reporte: ${report['Id_Medida']}');
+                                },
                               ),
-                              trailing: Icon(Icons.location_on),
-                              onTap: () {
-                                print('Detalles del reporte: ${report['Id_Medida']}');
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
+            ),
           ),
         ],
       ),
