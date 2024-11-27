@@ -153,15 +153,6 @@ class _HeatMapViewState extends State<HeatMapView> {
               ),
             ),
           Positioned(
-            bottom: 80.0,
-            right: 16.0,
-            child: FloatingActionButton(
-              onPressed: _goToCurrentLocation,
-              backgroundColor: Colors.teal,
-              child: Icon(Icons.my_location),
-            ),
-          ),
-          Positioned(
             bottom: 0,
             left: 0,
             right: 0,
@@ -171,8 +162,10 @@ class _HeatMapViewState extends State<HeatMapView> {
               color: Colors.white.withOpacity(0.9),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Wrap(
+                  spacing: 16.0,
+                  runSpacing: 8.0,
+                  alignment: WrapAlignment.center,
                   children: [
                     ElevatedButton.icon(
                       onPressed: () => _selectDate(context),
@@ -180,6 +173,7 @@ class _HeatMapViewState extends State<HeatMapView> {
                       label: Text('Fecha'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
+                        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                       ),
                     ),
                     DropdownButton<int?>(
@@ -203,6 +197,11 @@ class _HeatMapViewState extends State<HeatMapView> {
                         });
                         _fetchHeatMapData();
                       },
+                      style: TextStyle(fontSize: 16.0, color: Colors.black),
+                      underline: Container(
+                        height: 1,
+                        color: Colors.teal,
+                      ),
                     ),
                   ],
                 ),
