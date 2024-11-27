@@ -16,7 +16,7 @@ class _HeatMapViewState extends State<HeatMapView> {
 
   List<CircleMarker> _heatMapCircles = [];
   DateTime _selectedDate = DateTime.now();
-  int? _selectedHour;
+  int? _selectedHour; // Permite valores nulos para "Sin hora"
   bool _isLoading = false;
   LatLng? _currentLocation;
 
@@ -53,7 +53,11 @@ class _HeatMapViewState extends State<HeatMapView> {
 
     try {
       final String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      final data = await _heatMapController.fetchClusteredHeatMapData(formattedDate, hora: _selectedHour);
+      // Enviar `null` como rango específico si es "Sin hora"
+      final data = await _heatMapController.fetchClusteredHeatMapData(
+        formattedDate,
+        hora: _selectedHour, // Pasar el valor nulo o la hora seleccionada
+      );
 
       setState(() {
         _heatMapCircles = data.map((entry) {
@@ -97,7 +101,7 @@ class _HeatMapViewState extends State<HeatMapView> {
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
-        _selectedHour = null;
+        _selectedHour = null; // Restablecer hora para mostrar todo el día
       });
       _fetchHeatMapData();
     }
@@ -178,18 +182,24 @@ class _HeatMapViewState extends State<HeatMapView> {
                         backgroundColor: Colors.teal,
                       ),
                     ),
-                    DropdownButton<int>(
+                    DropdownButton<int?>(
                       hint: Text('Hora'),
                       value: _selectedHour,
-                      items: List.generate(24, (index) => index).map((hour) {
-                        return DropdownMenuItem(
-                          value: hour,
-                          child: Text('$hour:00'),
-                        );
-                      }).toList(),
+                      items: [
+                        DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text('Sin hora'),
+                        ),
+                        ...List.generate(24, (index) => index).map((hour) {
+                          return DropdownMenuItem<int?>(
+                            value: hour,
+                            child: Text(hour == 0 ? '00:00 (medianoche)' : '$hour:00'),
+                          );
+                        }),
+                      ],
                       onChanged: (value) {
                         setState(() {
-                          _selectedHour = value;
+                          _selectedHour = value; // `null` ahora es explícito
                         });
                         _fetchHeatMapData();
                       },

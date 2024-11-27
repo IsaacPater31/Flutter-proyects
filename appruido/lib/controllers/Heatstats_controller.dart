@@ -8,9 +8,16 @@ class HeatMapController {
   /// Obtiene y procesa los datos del mapa de calor agrupados por proximidad
   Future<List<Map<String, dynamic>>> fetchClusteredHeatMapData(String fecha, {int? hora}) async {
     try {
-      final body = hora != null
-          ? jsonEncode({'fecha': fecha, 'hora': hora.toString()})
-          : jsonEncode({'fecha': fecha});
+      // Construir el cuerpo de la solicitud, omitiendo `hora` si es null
+      final Map<String, dynamic> bodyData = {'fecha': fecha};
+      if (hora != null && hora > 0) {
+        bodyData['hora'] = hora.toString();
+      } else if (hora == 0) {
+        // Si la hora es 0 (medianoche), ajustarla a 00:01 para diferenciar de "sin hora"
+        bodyData['hora'] = "00:01";
+      }
+
+      final body = jsonEncode(bodyData);
 
       final response = await http.post(
         Uri.parse(apiUrl),

@@ -31,10 +31,10 @@ if (!isset($data['fecha'])) {
 }
 
 $fecha = $conn->real_escape_string($data['fecha']);
-$hora = isset($data['hora']) ? $conn->real_escape_string($data['hora']) : null;
+$hora = isset($data['hora']) && $data['hora'] !== '-1' ? $conn->real_escape_string($data['hora']) : null;
 
 // Construir la consulta SQL según los parámetros
-if ($hora) {
+if ($hora !== null) {
     // Rango de horas basado en la hora proporcionada
     $horaInicio = $hora . ':00:00';
     $horaFin = $hora . ':59:59';
