@@ -166,7 +166,7 @@ class _MapStartControllerState extends State<MapStartController> {
         Align(
           alignment: Alignment.topCenter,
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: MediaQuery.of(context).size.height * 0.7,//Poner en 0.92 en caso tal de querer mostrar las web view
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(

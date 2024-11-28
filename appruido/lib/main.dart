@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+      );/////////////////////////////////////////WebView///En caso tal de querer ver la vista web
     });
   }
 
