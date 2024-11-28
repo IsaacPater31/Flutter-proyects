@@ -39,6 +39,7 @@ class _MapStartControllerState extends State<MapStartController> {
     super.dispose();
   }
 
+  /// Obtiene la ubicación actual del usuario
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -74,6 +75,7 @@ class _MapStartControllerState extends State<MapStartController> {
     }
   }
 
+  /// Solicita los registros de ruido desde la API y actualiza los marcadores
   Future<void> _fetchNoiseRecords() async {
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -95,6 +97,7 @@ class _MapStartControllerState extends State<MapStartController> {
     }
   }
 
+  /// Actualiza los marcadores en el mapa con los datos obtenidos
   void _updateMarkers(List<dynamic> records) {
     List<Marker> markers = [];
     for (var record in records) {
@@ -117,7 +120,31 @@ class _MapStartControllerState extends State<MapStartController> {
         width: 80.0,
         height: 80.0,
         point: position,
-        builder: (ctx) => Icon(Icons.location_pin, color: markerColor, size: 40),
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Texto con el nivel de ruido
+            Container(
+              padding: EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4.0,
+                  ),
+                ],
+              ),
+              child: Text(
+                "${nivelRuido.toStringAsFixed(1)} dB",
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 4.0),
+            Icon(Icons.location_pin, color: markerColor, size: 40),
+          ],
+        ),
       ));
     }
 
@@ -126,6 +153,7 @@ class _MapStartControllerState extends State<MapStartController> {
     });
   }
 
+  /// Recarga los marcadores manualmente
   Future<void> reloadMarkers() async {
     await _fetchNoiseRecords();
   }
