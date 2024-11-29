@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class LoginController {
-  final String apiUrl = 'http://192.168.1.13/apis/Api_Login.php';
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Login.php'; // Cambia esta URL según la direccion ipv4
 
   // Variable global para almacenar el ID del usuario logueado
   static int? userId;

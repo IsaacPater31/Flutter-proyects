@@ -14,7 +14,7 @@ class SoundController {
   bool _isRecording = false;
   late NoiseReading _noiseReading;
 
-  final String apiUrl = 'http://192.168.1.13/apis/Api_GuardarSonido.php';
+  final String apiUrl = 'http://192.168.1.16/apis/Api_GuardarSonido.php'; // Cambia esta URL según la direccion ipv4
 
   // Verificar permisos de micrófono
   Future<void> requestMicrophonePermission() async {

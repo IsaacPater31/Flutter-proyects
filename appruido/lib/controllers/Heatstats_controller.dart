@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HeatMapController {
-  final String apiUrl = 'http://192.168.1.13/apis/Api_Heatmap.php';
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Heatmap.php'; // Cambia esta URL según la direccion ipv4
   final double proximityThreshold = 0.01; // Umbral de proximidad en grados
 
   /// Obtiene y procesa los datos del mapa de calor agrupados por proximidad

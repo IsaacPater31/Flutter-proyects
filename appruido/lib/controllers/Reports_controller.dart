@@ -3,7 +3,7 @@ import 'package:appruido/controllers/login_controller.dart';
 import 'package:http/http.dart' as http;
 
 class ReportsController {
-  final String apiUrl = 'http://192.168.1.13/apis/Api_reports.php';  // Cambia la URL si es necesario
+  final String apiUrl = 'http://192.168.1.16/apis/Api_reports.php';  // Cambia esta URL según la direccion ipv4
   List<dynamic> _reportData = [];  // Lista privada para almacenar los reportes
 
   // Getter para obtener los reportes

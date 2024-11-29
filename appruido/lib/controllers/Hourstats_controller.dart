@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HourStatsController {
-  final String apiUrl = 'http://192.168.1.13/apis/Api_Filtroporhora.php';
+  final String apiUrl = 'http://192.168.1.16/apis/Api_Filtroporhora.php'; // Cambia esta URL según la direccion ipv4
 
   /// Realiza la solicitud al API y devuelve el promedio de ruido por hora
   Future<List<Map<String, dynamic>>> fetchHourlyStats() async {
