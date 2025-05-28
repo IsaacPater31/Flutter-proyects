@@ -1,3 +1,23 @@
-# Flutter-proyects
- 1)Proyecto para ingenieria de servicios de internet, El proyecto propone la creación de un aplicativo especializado en el monitoreo y reporte del ruido generado por equipos de sonido a todo volumen durante las horas nocturnas. Este aplicativo permitirá a los usuarios medir 
- con precisión los niveles de decibeles en su entorno utilizando los sensores de sonido integrados en sus teléfonos. Mostrando estadisticas y un mapa de calor
+# 📱🔊 App de Monitoreo de Contaminación Auditiva
+
+Proyecto desarrollado para la asignatura de **Ingeniería de Servicios de Internet**.  
+Este aplicativo móvil permite a los usuarios **monitorear y reportar casos de contaminación auditiva**, como ruidos provenientes de equipos de sonido, vehículos, maquinaria u otras fuentes.
+
+## 🧩 Funcionalidades principales
+
+- 📏 Medición precisa de niveles de ruido en decibeles.
+- 📊 Estadísticas detalladas por hora, día y ubicación.
+- 🗺️ Mapa de calor con puntos críticos de ruido.
+- 📝 Registro y almacenamiento de reportes generados.
+- 📍 Geolocalización para ubicar el origen del ruido.
+- 🤝 Participación ciudadana a través de reportes colaborativos.
+
+## 🛠️ Tecnologías utilizadas
+
+- Flutter 📱
+- Dart 💻
+- php 💻
+- OpenStreetMap 🗺️
+- Sensor de micrófono 🎤 
+
+¡Gracias por tu interés en nuestro proyecto! 💙  
